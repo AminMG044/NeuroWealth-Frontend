@@ -183,4 +183,50 @@ describe("useNotifications", () => {
     );
     assert.equal(notif.isRead, true);
   });
+
+  // #1042 — another tab's markAllAsRead/clear must reach this tab's state.
+  it("re-syncs when another tab updates the notifications key", () => {
+    const { result } = renderHook(() => useNotifications());
+    assert.ok(result.current.unreadCount > 0);
+
+    const allRead = result.current.notifications.map((n) => ({ ...n, isRead: true }));
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify(allRead),
+        }),
+      );
+    });
+
+    assert.equal(result.current.unreadCount, 0);
+  });
+
+  it("re-syncs to an empty list when another tab clears notifications", () => {
+    const { result } = renderHook(() => useNotifications());
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify([]),
+        }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, 0);
+  });
+
+  it("ignores storage events for unrelated keys", () => {
+    const { result } = renderHook(() => useNotifications());
+    const before = result.current.notifications.length;
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "some-other-key", newValue: "[]" }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, before);
+  });
 });
