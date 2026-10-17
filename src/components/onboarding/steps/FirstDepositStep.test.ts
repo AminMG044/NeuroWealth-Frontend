@@ -116,7 +116,7 @@ test("FirstDepositStep — aria-pressed is true only on currently-selected asset
 });
 
 test("FirstDepositStep — aria-pressed updates dynamically upon keyboard selection", () => {
-  let selectedAsset = "xlm";
+  let selectedAsset: string = "xlm";
   const selectAsset = (id: string) => {
     selectedAsset = id;
   };
@@ -126,7 +126,7 @@ test("FirstDepositStep — aria-pressed updates dynamically upon keyboard select
 
   assert.equal(selectedAsset, "usdc");
   const isUsdcPressed = selectedAsset === "usdc";
-  const isXlmPressed = selectedAsset === "xlm";
+  const isXlmPressed = (selectedAsset as string) === "xlm";
 
   assert.equal(isUsdcPressed, true, "Newly selected asset must have aria-pressed=true");
   assert.equal(isXlmPressed, false, "Previously selected asset must have aria-pressed=false");

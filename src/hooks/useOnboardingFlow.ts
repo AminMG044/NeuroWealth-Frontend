@@ -5,14 +5,7 @@
 // presentation component stays free of orchestration concerns.
 
 import { useState, useEffect } from 'react';
-import { STORAGE_KEYS } from '@/lib/storage-keys';
-
-const STORAGE_KEY = STORAGE_KEYS.ONBOARDING_STATE;
-
-interface OnboardingState {
-  currentStep: number;
-  isCompleted: boolean;
-}
+import { loadOnboardingState, saveOnboardingState } from '@/lib/onboarding-state';
 
 interface UseOnboardingFlowOptions {
   totalSteps: number;
@@ -42,29 +35,21 @@ export function useOnboardingFlow({
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const { completed, lastStep } = JSON.parse(raw) as { completed?: boolean; lastStep?: number };
-      if (completed) {
-        setIsCompleted(true);
-      } else if (typeof lastStep === 'number') {
-        setCurrentStep(lastStep);
-      }
-    } catch {
-      // ignore corrupt storage
+    const stored = loadOnboardingState();
+    if (!stored) return;
+    if (stored.completed) {
+      setIsCompleted(true);
+    } else if (typeof stored.lastStep === 'number') {
+      setCurrentStep(stored.lastStep);
     }
   }, []);
 
   function persist(step: number, completed = false) {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ lastStep: step, completed, timestamp: Date.now() }),
-      );
-    } catch {
-      // ignore storage errors
-    }
+    saveOnboardingState({
+      lastStep: step,
+      completed,
+      timestamp: Date.now(),
+    });
   }
 
   function handleNext() {
@@ -93,18 +78,11 @@ export function useOnboardingFlow({
     onSkip?.();
   }
 
-  // Per-step "Skip for Now" / "Decide Later": advance past the current step
-  // without completing the whole flow. Only the final step ends onboarding.
+  // Per-step "Skip for Now" / "Decide Later": same advance/complete path as
+  // Next — kept as a named alias so the UI can wire the two actions separately
+  // without duplicating the step machine (#1052).
   function handleStepSkip() {
-    if (currentStep < totalSteps - 1) {
-      const next = currentStep + 1;
-      setCurrentStep(next);
-      persist(next);
-    } else {
-      setIsCompleted(true);
-      persist(currentStep, true);
-      onComplete?.();
-    }
+    handleNext();
   }
 
   function handleStepClick(stepIndex: number) {

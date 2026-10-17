@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Notification, MOCK_NOTIFICATIONS } from "@/lib/mock-notifications";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
+import { useStorageSync } from "@/hooks/useStorageSync";
 
 const NOTIFICATION_STORAGE_KEY = STORAGE_KEYS.NOTIFICATIONS_LIST;
 
@@ -51,6 +52,29 @@ export function useNotifications() {
     return MOCK_NOTIFICATIONS;
   });
   const [loading] = useState(false);
+
+  const syncNotifications = useCallback((nextValue: string | null) => {
+    if (nextValue == null) {
+      setNotifications(MOCK_NOTIFICATIONS);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(nextValue);
+      if (!Array.isArray(parsed)) {
+        setNotifications(MOCK_NOTIFICATIONS);
+        return;
+      }
+      const validNotifications = parsed.filter(isValidNotification);
+      setNotifications(
+        validNotifications.length > 0 ? validNotifications : MOCK_NOTIFICATIONS,
+      );
+    } catch {
+      setNotifications(MOCK_NOTIFICATIONS);
+    }
+  }, []);
+
+  useStorageSync(NOTIFICATION_STORAGE_KEY, syncNotifications);
 
   const markAsRead = (id: string) => {
     const updated = notifications.map((n) =>

@@ -2,6 +2,7 @@ import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { renderHook, act } from "@/test-utils/render-hook";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
+import { loadOnboardingState } from "@/lib/onboarding-state";
 import { useOnboardingFlow } from "./useOnboardingFlow";
 
 // #953 — a per-step "Skip for Now" / "Decide Later" must advance the flow
@@ -109,5 +110,47 @@ describe("useOnboardingFlow handleStepSkip", () => {
     assert.equal(result.current.isCompleted, true);
     assert.equal(skips, 1);
     assert.equal(readPersisted()?.completed, true);
+  });
+});
+
+describe("useOnboardingFlow / onboarding-state consolidation", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  // #1054 — values written by the flow hook must round-trip through the shared adapter.
+  it("reads back via loadOnboardingState the same shape saved by useOnboardingFlow", () => {
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 3 }));
+
+    act(() => {
+      result.current.handleNext();
+    });
+
+    const loaded = loadOnboardingState();
+    const raw = readPersisted() as {
+      lastStep?: number;
+      completed?: boolean;
+      timestamp?: number;
+    } | null;
+
+    assert.ok(loaded);
+    assert.ok(raw);
+    assert.deepEqual(loaded, raw);
+    assert.equal(loaded.completed, false);
+    assert.equal(loaded.lastStep, 1);
+    assert.equal(typeof loaded.timestamp, "number");
+  });
+
+  it("handleStepSkip shares handleNext's persistence path", () => {
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 3 }));
+
+    act(() => {
+      result.current.handleStepSkip();
+    });
+
+    const loaded = loadOnboardingState();
+    assert.equal(loaded?.lastStep, 1);
+    assert.equal(loaded?.completed, false);
+    assert.equal(result.current.currentStep, 1);
   });
 });

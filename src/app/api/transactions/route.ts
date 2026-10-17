@@ -20,6 +20,9 @@ import { isSandboxScenario, parseSandboxScenario } from "@/lib/sandbox-scenario"
 import { createServerFetcher } from "@/lib/api-client";
 import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { requireAuth } from "@/lib/api-auth";
+import { dictionaries } from "@/lib/i18n/messages";
+
+const tDomain = dictionaries.en.transactions.domain;
 
 export async function POST(request: NextRequest) {
   const authError = requireAuth(request, { requireSameOrigin: true });
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
   // Validate transaction values BEFORE forwarding to backend
   // This ensures semantic checks (amount range, wallet format, etc.) are
   // enforced regardless of whether we're using a backend or local mock
-  const errors = validateTransactionValues(kind, values);
+  const errors = validateTransactionValues(kind, values, tDomain);
 
   if (Object.keys(errors).length > 0) {
     return NextResponse.json(
@@ -131,14 +134,20 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       successResponse({
-        pending: buildPendingTransaction(kind, values, outcome),
+        pending: buildPendingTransaction(
+          kind,
+          values,
+          tDomain.pending,
+          tDomain.context,
+          outcome,
+        ),
       }),
     );
   }
 
   return NextResponse.json(
     successResponse({
-      quote: buildTransactionQuote(kind, values),
+      quote: buildTransactionQuote(kind, values, tDomain.context),
     }),
   );
 }

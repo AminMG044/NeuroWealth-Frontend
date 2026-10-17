@@ -211,7 +211,7 @@ describe("useAsyncState error classification in run()", () => {
     // Old call rejects after new call succeeded
     // The error should be discarded because it's stale
     await act(async () => {
-      rejectFirst(new ServiceError("STALE_ERROR", "this is from an old call", true));
+      rejectFirst(new ServiceError("NETWORK_ERROR", "this is from an old call", true));
       await first.catch(() => {}); // Ignore the rejection in this context
     });
 

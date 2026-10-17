@@ -24,7 +24,14 @@ describe("useNotifications", () => {
 
   it("retrieves notifications from localStorage if available", () => {
     const mockNotifications = [
-      { id: "1", title: "Test", isRead: false, message: "Test message", timestamp: new Date().toISOString() },
+      {
+        id: "1",
+        title: "Test",
+        isRead: false,
+        message: "Test message",
+        timestamp: new Date().toISOString(),
+        status: "info" as const,
+      },
     ];
     localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(mockNotifications));
 
@@ -182,5 +189,35 @@ describe("useNotifications", () => {
       (n: { id: string; isRead: boolean }) => n.id === firstNotificationId,
     );
     assert.equal(notif.isRead, true);
+  });
+
+  // #1053 — cross-tab storage sync must rehydrate this hook's list.
+  it("syncs when another tab updates the same storage key", () => {
+    const { result } = renderHook(() => useNotifications());
+
+    const synced = [
+      {
+        id: "synced-1",
+        title: "Synced from other tab",
+        message: "Mark-as-read landed in another tab",
+        timestamp: "2026-01-01T00:00:00Z",
+        status: "info" as const,
+        isRead: true,
+      },
+    ];
+
+    act(() => {
+      localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(synced));
+      window.dispatchEvent(
+        new window.StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify(synced),
+        }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, 1);
+    assert.equal(result.current.notifications[0]?.id, "synced-1");
+    assert.equal(result.current.unreadCount, 0);
   });
 });
