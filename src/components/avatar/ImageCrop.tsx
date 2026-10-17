@@ -3,15 +3,15 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 
 export interface CropResult {
-  x: number;       // 0–1 relative coords
+  x: number; // 0–1 relative coords
   y: number;
-  size: number;    // 0–1, always square
+  size: number; // 0–1, always square
   dataUrl?: string;
 }
 
 export interface ImageCropProps {
-  src: string;                          // image src to crop
-  outputSize?: number;                  // canvas output px (default 256)
+  src: string; // image src to crop
+  outputSize?: number; // canvas output px (default 256)
   onCropChange?: (crop: CropResult) => void;
   onConfirm?: (result: CropResult) => void;
   onCancel?: () => void;
@@ -34,7 +34,11 @@ function cropStep(shiftKey: boolean): number {
   return shiftKey ? KEY_STEP_SHIFT : KEY_STEP;
 }
 
-function moveCropByKey(key: string, crop: CropState, step: number): CropState | null {
+function moveCropByKey(
+  key: string,
+  crop: CropState,
+  step: number,
+): CropState | null {
   switch (key) {
     case "ArrowLeft":
       return { ...crop, x: crop.x - step };
@@ -56,14 +60,16 @@ function resizeCropByKey(
   step: number,
   clamp: (v: number, lo: number, hi: number) => number,
 ): CropState | null {
-  if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)) return null;
+  if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key))
+    return null;
 
   let { x, y, size } = crop;
   // Mirror the pointer-drag math: se/nw follow both axes, ne only follows
   // the x axis (dx) and sw only follows the y axis (dy).
   let delta: number;
   if (handle === "se" || handle === "nw") {
-    const growKeys = handle === "se" ? ["ArrowRight", "ArrowDown"] : ["ArrowLeft", "ArrowUp"];
+    const growKeys =
+      handle === "se" ? ["ArrowRight", "ArrowDown"] : ["ArrowLeft", "ArrowUp"];
     delta = growKeys.includes(key) ? -step : step;
   } else if (handle === "ne") {
     if (key !== "ArrowLeft" && key !== "ArrowRight") return null;
@@ -93,18 +99,27 @@ function resizeCropByKey(
 }
 
 function isCropArrowKey(key: string): boolean {
-  return key === "ArrowUp" || key === "ArrowDown" || key === "ArrowLeft" || key === "ArrowRight";
+  return (
+    key === "ArrowUp" ||
+    key === "ArrowDown" ||
+    key === "ArrowLeft" ||
+    key === "ArrowRight"
+  );
 }
 
 function handleMaxSizePercent(h: Handle, crop: CropState): number {
-  return Math.round(Math.min(
-    h.includes("w") ? crop.x + crop.size : 1 - crop.x,
-    h.includes("n") ? crop.y + crop.size : 1 - crop.y,
-  ) * 100);
+  return Math.round(
+    Math.min(
+      h.includes("w") ? crop.x + crop.size : 1 - crop.x,
+      h.includes("n") ? crop.y + crop.size : 1 - crop.y,
+    ) * 100,
+  );
 }
 
 interface CropState {
-  x: number; y: number; size: number;
+  x: number;
+  y: number;
+  size: number;
 }
 
 export default function ImageCrop({
@@ -119,58 +134,68 @@ export default function ImageCrop({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [crop, setCrop] = useState<CropState>({ x: 0.1, y: 0.1, size: 0.8 });
   const [dragging, setDragging] = useState<Handle | "move" | null>(null);
-  const dragStart = useRef<{ mx: number; my: number; crop: CropState } | null>(null);
+  const dragStart = useRef<{ mx: number; my: number; crop: CropState } | null>(
+    null,
+  );
   const [ready, setReady] = useState(false);
 
-  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+  const clamp = (v: number, lo: number, hi: number) =>
+    Math.max(lo, Math.min(hi, v));
 
-  const updateCrop = useCallback((next: CropState) => {
-    const c = {
-      x: clamp(next.x, 0, 1 - next.size),
-      y: clamp(next.y, 0, 1 - next.size),
-      size: clamp(next.size, 0.1, 1),
-    };
-    c.x = clamp(c.x, 0, 1 - c.size);
-    c.y = clamp(c.y, 0, 1 - c.size);
-    setCrop(c);
-    onCropChange?.({ ...c });
-  }, [onCropChange]);
+  const updateCrop = useCallback(
+    (next: CropState) => {
+      const c = {
+        x: clamp(next.x, 0, 1 - next.size),
+        y: clamp(next.y, 0, 1 - next.size),
+        size: clamp(next.size, 0.1, 1),
+      };
+      c.x = clamp(c.x, 0, 1 - c.size);
+      c.y = clamp(c.y, 0, 1 - c.size);
+      setCrop(c);
+      onCropChange?.({ ...c });
+    },
+    [onCropChange],
+  );
 
-  const onCropKeyDown = useCallback((
-    e: React.KeyboardEvent,
-    mode: Handle | "move",
-  ) => {
-    if (!isCropArrowKey(e.key)) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const step = cropStep(e.shiftKey);
-    const next = mode === "move"
-      ? moveCropByKey(e.key, crop, step)
-      : resizeCropByKey(mode, e.key, crop, step, clamp);
-    if (next) updateCrop(next);
-  }, [crop, updateCrop]);
+  const onCropKeyDown = useCallback(
+    (e: React.KeyboardEvent, mode: Handle | "move") => {
+      if (!isCropArrowKey(e.key)) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const step = cropStep(e.shiftKey);
+      const next =
+        mode === "move"
+          ? moveCropByKey(e.key, crop, step)
+          : resizeCropByKey(mode, e.key, crop, step, clamp);
+      if (next) updateCrop(next);
+    },
+    [crop, updateCrop],
+  );
 
   const getRelative = useCallback((e: MouseEvent | TouchEvent) => {
     const rect = containerRef.current!.getBoundingClientRect();
-    const pt = "touches" in e ? e.touches[0] : e as MouseEvent;
+    const pt = "touches" in e ? e.touches[0] : (e as MouseEvent);
     return {
       rx: (pt.clientX - rect.left) / rect.width,
       ry: (pt.clientY - rect.top) / rect.height,
     };
   }, []);
 
-  const onMouseDown = useCallback((e: React.MouseEvent | React.TouchEvent, type: Handle | "move") => {
-    e.preventDefault();
-    e.stopPropagation();
-    const rect = containerRef.current!.getBoundingClientRect();
-    const pt = "touches" in e ? e.touches[0] : e as React.MouseEvent;
-    dragStart.current = {
-      mx: (pt.clientX - rect.left) / rect.width,
-      my: (pt.clientY - rect.top) / rect.height,
-      crop: { ...crop },
-    };
-    setDragging(type);
-  }, [crop]);
+  const onMouseDown = useCallback(
+    (e: React.MouseEvent | React.TouchEvent, type: Handle | "move") => {
+      e.preventDefault();
+      e.stopPropagation();
+      const rect = containerRef.current!.getBoundingClientRect();
+      const pt = "touches" in e ? e.touches[0] : (e as React.MouseEvent);
+      dragStart.current = {
+        mx: (pt.clientX - rect.left) / rect.width,
+        my: (pt.clientY - rect.top) / rect.height,
+        crop: { ...crop },
+      };
+      setDragging(type);
+    },
+    [crop],
+  );
 
   useEffect(() => {
     const move = (e: MouseEvent | TouchEvent) => {
@@ -190,7 +215,11 @@ export default function ImageCrop({
       const delta = Math.max(dx, dy);
 
       if (dragging === "se") {
-        updateCrop({ x, y, size: clamp(size + delta, 0.1, Math.min(1 - x, 1 - y)) });
+        updateCrop({
+          x,
+          y,
+          size: clamp(size + delta, 0.1, Math.min(1 - x, 1 - y)),
+        });
       } else if (dragging === "nw") {
         const ns = clamp(size - delta, 0.1, 1);
         updateCrop({ x: x + (size - ns), y: y + (size - ns), size: ns });
@@ -203,7 +232,10 @@ export default function ImageCrop({
       }
     };
 
-    const up = () => { setDragging(null); dragStart.current = null; };
+    const up = () => {
+      setDragging(null);
+      dragStart.current = null;
+    };
 
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
@@ -230,7 +262,10 @@ export default function ImageCrop({
       crop.y * img.naturalHeight,
       crop.size * img.naturalWidth,
       crop.size * img.naturalHeight,
-      0, 0, outputSize, outputSize
+      0,
+      0,
+      outputSize,
+      outputSize,
     );
     const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
     onConfirm?.({ ...crop, dataUrl });
@@ -246,7 +281,13 @@ export default function ImageCrop({
       {/* Crop canvas */}
       <div
         ref={containerRef}
-        style={{ position: "relative", userSelect: "none", borderRadius: 8, overflow: "hidden", background: "#000" }}
+        style={{
+          position: "relative",
+          userSelect: "none",
+          borderRadius: 8,
+          overflow: "hidden",
+          background: "#000",
+        }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- 
             Exception: Raw <img> required for canvas-based cropping logic (drawImage) 
@@ -257,21 +298,44 @@ export default function ImageCrop({
           alt="Crop preview"
           draggable={false}
           onLoad={() => setReady(true)}
-          style={{ display: "block", width: "100%", height: "auto", opacity: 0.45, pointerEvents: "none" }}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "auto",
+            opacity: 0.45,
+            pointerEvents: "none",
+          }}
         />
 
         {ready && (
           <>
+            {/* Visually-hidden instructions for screen readers */}
+            <div
+              id="crop-move-instructions"
+              style={{
+                position: "absolute",
+                left: "-9999px",
+                width: 1,
+                height: 1,
+                overflow: "hidden",
+              }}
+            >
+              Use the arrow keys to move the crop area. Hold Shift to move
+              farther.
+            </div>
+
             {/* Bright crop region */}
             <div
               role="group"
               tabIndex={0}
               aria-label="Move crop area"
-              aria-description="Use the arrow keys to move the crop area. Hold Shift to move farther."
+              aria-describedby="crop-move-instructions"
               style={{
                 position: "absolute",
-                left, top,
-                width: size, height: size,
+                left,
+                top,
+                width: size,
+                height: size,
                 boxShadow: "0 0 0 9999px rgba(0,0,0,0.55)",
                 borderRadius: 4,
                 cursor: dragging === "move" ? "grabbing" : "grab",
@@ -280,14 +344,38 @@ export default function ImageCrop({
               onMouseDown={(e) => onMouseDown(e, "move")}
               onTouchStart={(e) => onMouseDown(e, "move")}
               onKeyDown={(e) => onCropKeyDown(e, "move")}
-              onFocus={(e) => { e.currentTarget.style.boxShadow = "0 0 0 9999px rgba(0,0,0,0.55), 0 0 0 2px #6366f1"; }}
-              onBlur={(e) => { e.currentTarget.style.boxShadow = "0 0 0 9999px rgba(0,0,0,0.55)"; }}
+              onFocus={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 9999px rgba(0,0,0,0.55), 0 0 0 2px #6366f1";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.boxShadow =
+                  "0 0 0 9999px rgba(0,0,0,0.55)";
+              }}
             >
               {/* Grid lines */}
               {[33, 66].map((p) => (
                 <React.Fragment key={p}>
-                  <div style={{ position: "absolute", left: `${p}%`, top: 0, bottom: 0, width: "0.5px", background: "rgba(255,255,255,0.25)" }} />
-                  <div style={{ position: "absolute", top: `${p}%`, left: 0, right: 0, height: "0.5px", background: "rgba(255,255,255,0.25)" }} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: `${p}%`,
+                      top: 0,
+                      bottom: 0,
+                      width: "0.5px",
+                      background: "rgba(255,255,255,0.25)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: `${p}%`,
+                      left: 0,
+                      right: 0,
+                      height: "0.5px",
+                      background: "rgba(255,255,255,0.25)",
+                    }}
+                  />
                 </React.Fragment>
               ))}
 
@@ -306,27 +394,40 @@ export default function ImageCrop({
                   onMouseDown={(e) => onMouseDown(e, h)}
                   onTouchStart={(e) => onMouseDown(e, h)}
                   onKeyDown={(e) => onCropKeyDown(e, h)}
-                  onFocus={(e) => { e.currentTarget.style.outline = "2px solid #6366f1"; e.currentTarget.style.outlineOffset = "2px"; }}
-                  onBlur={(e) => { e.currentTarget.style.outline = "none"; }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.outline = "2px solid #6366f1";
+                    e.currentTarget.style.outlineOffset = "2px";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.outline = "none";
+                  }}
                   style={{
                     position: "absolute",
                     width: HANDLE_HIT * 2,
                     height: HANDLE_HIT * 2,
-                    ...(h.includes("n") ? { top: -HANDLE_HIT } : { bottom: -HANDLE_HIT }),
-                    ...(h.includes("w") ? { left: -HANDLE_HIT } : { right: -HANDLE_HIT }),
-                    cursor: h === "nw" || h === "se" ? "nwse-resize" : "nesw-resize",
+                    ...(h.includes("n")
+                      ? { top: -HANDLE_HIT }
+                      : { bottom: -HANDLE_HIT }),
+                    ...(h.includes("w")
+                      ? { left: -HANDLE_HIT }
+                      : { right: -HANDLE_HIT }),
+                    cursor:
+                      h === "nw" || h === "se" ? "nwse-resize" : "nesw-resize",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     zIndex: 2,
                   }}
                 >
-                  <div style={{
-                    width: 10, height: 10,
-                    background: "#fff",
-                    borderRadius: 2,
-                    border: "1.5px solid #6366f1",
-                  }} />
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      background: "#fff",
+                      borderRadius: 2,
+                      border: "1.5px solid #6366f1",
+                    }}
+                  />
                 </div>
               ))}
             </div>
@@ -343,9 +444,14 @@ export default function ImageCrop({
           <button
             onClick={onCancel}
             style={{
-              fontFamily: "inherit", fontSize: 13, cursor: "pointer",
-              border: "0.5px solid #374151", background: "transparent",
-              color: "#9ca3af", borderRadius: 6, padding: "6px 14px",
+              fontFamily: "inherit",
+              fontSize: 13,
+              cursor: "pointer",
+              border: "0.5px solid #374151",
+              background: "transparent",
+              color: "#9ca3af",
+              borderRadius: 6,
+              padding: "6px 14px",
               transition: "background 0.12s",
             }}
           >
@@ -356,10 +462,16 @@ export default function ImageCrop({
           onClick={handleConfirm}
           disabled={!ready}
           style={{
-            fontFamily: "inherit", fontSize: 13, cursor: ready ? "pointer" : "default",
-            border: "none", background: "#6366f1",
-            color: "#fff", borderRadius: 6, padding: "6px 16px",
-            fontWeight: 500, opacity: ready ? 1 : 0.5,
+            fontFamily: "inherit",
+            fontSize: 13,
+            cursor: ready ? "pointer" : "default",
+            border: "none",
+            background: "#6366f1",
+            color: "#fff",
+            borderRadius: 6,
+            padding: "6px 16px",
+            fontWeight: 500,
+            opacity: ready ? 1 : 0.5,
             transition: "opacity 0.12s",
           }}
         >
