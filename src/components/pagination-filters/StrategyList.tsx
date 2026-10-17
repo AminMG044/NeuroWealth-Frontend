@@ -268,12 +268,12 @@ export default function StrategyList() {
         {items.map((strategy) => (
           <div
             key={strategy.id}
-            className="flex flex-col gap-2.5 rounded-[10px] border border-slate-200 bg-white p-3.5 dark:border-gray-700 dark:bg-gray-900"
+            className="flex flex-col gap-2.5 rounded-[10px] border border-slate-200 bg-white p-3.5 dark:border-slate-700 dark:bg-slate-900"
           >
             {/* Title + Status */}
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
-                <h3 className="m-0 text-sm font-medium text-slate-900 dark:text-gray-50">
+                <h3 className="m-0 text-sm font-medium text-slate-900 dark:text-slate-50">
                   {strategy.name}
                 </h3>
               </div>
@@ -289,15 +289,15 @@ export default function StrategyList() {
                   strategy.riskLevel.slice(1)}{" "}
                 Risk
               </Badge>
-              <span className="rounded bg-slate-100 px-[7px] py-0.5 text-[11px] text-slate-600 dark:bg-gray-800 dark:text-gray-400">
+              <span className="rounded bg-slate-100 px-[7px] py-0.5 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-400">
                 {strategy.category}
               </span>
             </div>
 
             {/* Stats */}
-            <div className="flex justify-between border-t border-slate-200 pt-2.5 dark:border-gray-800">
+            <div className="flex justify-between border-t border-slate-200 pt-2.5 dark:border-slate-800">
               <div>
-                <p className="m-0 text-[10px] font-medium text-slate-500 dark:text-gray-500">
+                <p className="m-0 text-[10px] font-medium text-slate-500 dark:text-slate-500">
                   RETURN
                 </p>
                 <p className="mt-0.5 mb-0 text-sm font-semibold text-emerald-600 dark:text-emerald-500">
@@ -305,7 +305,7 @@ export default function StrategyList() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="m-0 text-[10px] font-medium text-slate-500 dark:text-gray-500">
+                <p className="m-0 text-[10px] font-medium text-slate-500 dark:text-slate-500">
                   PARTICIPANTS
                 </p>
                 <p className="mt-0.5 mb-0 text-sm font-semibold text-indigo-600 dark:text-indigo-300">

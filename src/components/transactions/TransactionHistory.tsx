@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useReducer, useRef } from "react";
-import Link from "next/link";
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -20,7 +19,7 @@ import {
 import { apiRequest } from "@/lib/api-client";
 import { formatCurrency, formatTimestamp } from "@/lib/formatters";
 import { useI18n } from "@/contexts/I18nContext";
-import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -262,49 +261,6 @@ function SkeletonCards({ count }: { count: number }) {
         </div>
       ))}
     </>
-  );
-}
-
-interface EmptyStateProps {
-  filtered: boolean;
-  onReset: () => void;
-}
-
-function EmptyState({ filtered, onReset }: EmptyStateProps) {
-  const { messages } = useI18n();
-  const t = messages.transactions.history;
-
-  return (
-    <div className="flex flex-col items-center justify-center py-20 gap-4 text-center">
-      <div className="rounded-full border border-white/10 bg-white/5 p-5">
-        <ClipboardList size={28} className="text-slate-500" aria-hidden />
-      </div>
-      <div className="space-y-1.5 max-w-xs">
-        <p className="text-slate-200 font-semibold">
-          {filtered ? t.noMatching : t.noHistory}
-        </p>
-        <p className="text-sm text-slate-500">
-          {filtered
-            ? t.adjustFilters
-            : t.firstDeposit}
-        </p>
-      </div>
-      {filtered ? (
-        <button
-          type="button"
-          onClick={onReset}
-          className="text-sm text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-sky-500 rounded"
-        >
-          {t.clearAllFilters}
-        </button>
-      ) : (
-        <Link href="/dashboard/transactions?kind=deposit">
-          <Button variant="primary" size="sm">
-            {t.makeDeposit}
-          </Button>
-        </Link>
-      )}
-    </div>
   );
 }
 
@@ -766,8 +722,12 @@ export function TransactionHistory({ embedded = false }: TransactionHistoryProps
         {/* Empty state (shared for both breakpoints) */}
         {isEmpty && (
           <EmptyState
-            filtered={isFiltered}
-            onReset={() => dispatchFilter({ type: "RESET" })}
+            icon={<ClipboardList size={28} aria-hidden />}
+            heading={isFiltered ? t.noMatching : t.noHistory}
+            body={isFiltered ? t.adjustFilters : t.firstDeposit}
+            ctaLabel={isFiltered ? t.clearAllFilters : t.makeDeposit}
+            onAction={isFiltered ? () => dispatchFilter({ type: "RESET" }) : undefined}
+            ctaHref={isFiltered ? undefined : "/dashboard/transactions?kind=deposit"}
           />
         )}
 
