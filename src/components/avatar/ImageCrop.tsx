@@ -59,12 +59,19 @@ function resizeCropByKey(
   if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(key)) return null;
 
   let { x, y, size } = crop;
-  const grow =
-    (handle === "se" && (key === "ArrowRight" || key === "ArrowDown")) ||
-    (handle === "nw" && (key === "ArrowLeft" || key === "ArrowUp")) ||
-    (handle === "ne" && (key === "ArrowRight" || key === "ArrowUp")) ||
-    (handle === "sw" && (key === "ArrowLeft" || key === "ArrowDown"));
-  const delta = grow ? -step : step;
+  // Mirror the pointer-drag math: se/nw follow both axes, ne only follows
+  // the x axis (dx) and sw only follows the y axis (dy).
+  let delta: number;
+  if (handle === "se" || handle === "nw") {
+    const growKeys = handle === "se" ? ["ArrowRight", "ArrowDown"] : ["ArrowLeft", "ArrowUp"];
+    delta = growKeys.includes(key) ? -step : step;
+  } else if (handle === "ne") {
+    if (key !== "ArrowLeft" && key !== "ArrowRight") return null;
+    delta = key === "ArrowRight" ? -step : step;
+  } else {
+    if (key !== "ArrowUp" && key !== "ArrowDown") return null;
+    delta = key === "ArrowDown" ? -step : step;
+  }
 
   if (handle === "se") {
     const ns = clamp(size - delta, 0.1, Math.min(1 - x, 1 - y));
