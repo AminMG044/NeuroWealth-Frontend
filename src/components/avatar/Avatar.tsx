@@ -133,8 +133,8 @@ export default function Avatar({
   // Placeholder
   return (
     <span
-      style={{ ...baseStyle, background: "#1f2937", color: "#6b7280" }}
-      className={className}
+      style={baseStyle}
+      className={`bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-500 ${className}`}
       onClick={onClick}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
