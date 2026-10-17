@@ -1,64 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { findSwkModal } from "./WalletConnectButton";
 
-/**
- * Tests for WalletConnectButton modal detection logic.
- * The component uses MutationObserver to detect wallet-kit modals and inject
- * custom messaging. The fix ensures that modal detection works when the
- * matching class is on a descendant element, not just the directly-added node.
- */
+test("findSwkModal — finds matching element directly or as a descendant", () => {
+  // Test direct match on element itself
+  const directEl = document.createElement("div");
+  directEl.className = "swk-modal-container";
+  assert.equal(findSwkModal(directEl), directEl);
 
-test("WalletConnectButton — modal detection finds descendant with swk class", () => {
-  // Simulate the logic: check if node or any descendant matches
-  const mockNode = {
-    querySelector: (selector: string) => {
-      if (selector === '[class*="swk"]') {
-        return { classList: { contains: () => true } } as any;
-      }
-      return null;
-    },
-  } as any;
+  // Test match on descendant element
+  const parentEl = document.createElement("div");
+  const childEl = document.createElement("div");
+  childEl.className = "swk-inner";
+  parentEl.appendChild(childEl);
+  assert.equal(findSwkModal(parentEl), childEl);
 
-  const modalElement = mockNode.querySelector('[class*="swk"]');
-  assert.ok(modalElement, "Should find descendant with swk class");
-});
+  // Test modal class fallback
+  const modalParent = document.createElement("div");
+  const modalChild = document.createElement("div");
+  modalChild.className = "generic-modal-overlay";
+  modalParent.appendChild(modalChild);
+  assert.equal(findSwkModal(modalParent), modalChild);
 
-test("WalletConnectButton — modal detection finds descendant with modal class", () => {
-  const mockNode = {
-    querySelector: (selector: string) => {
-      if (selector === '[class*="modal"]') {
-        return { classList: { contains: () => true } } as any;
-      }
-      return null;
-    },
-  } as any;
-
-  const modalElement = mockNode.querySelector('[class*="modal"]');
-  assert.ok(modalElement, "Should find descendant with modal class");
-});
-
-test("WalletConnectButton — modal detection returns null when no match", () => {
-  const mockNode = {
-    querySelector: () => null,
-  } as any;
-
-  const modalElement = mockNode.querySelector('[class*="swk"]') || mockNode.querySelector('[class*="modal"]');
-  assert.equal(modalElement, null, "Should return null when no matching descendant");
-});
-
-test("WalletConnectButton — prioritizes swk class over modal class", () => {
-  const mockNode = {
-    querySelector: (selector: string) => {
-      if (selector === '[class*="swk"]') {
-        return { id: "swk-modal" } as any;
-      }
-      if (selector === '[class*="modal"]') {
-        return { id: "generic-modal" } as any;
-      }
-      return null;
-    },
-  } as any;
-
-  const modalElement = mockNode.querySelector('[class*="swk"]') || mockNode.querySelector('[class*="modal"]');
-  assert.equal((modalElement as any).id, "swk-modal", "Should prioritize swk class");
+  // Test no match
+  const plainEl = document.createElement("div");
+  const plainChild = document.createElement("p");
+  plainEl.appendChild(plainChild);
+  assert.equal(findSwkModal(plainEl), null);
 });

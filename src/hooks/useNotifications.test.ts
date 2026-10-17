@@ -126,6 +126,45 @@ describe("useNotifications", () => {
     assert.ok(result.current.notifications.length > 0);
   });
 
+  it("filters out invalid items and keeps valid ones (per-item shape validation)", () => {
+    const mixedStored = [
+      {
+        id: "valid-1",
+        title: "Valid Title",
+        message: "Valid Message",
+        timestamp: "2026-01-01T00:00:00Z",
+        status: "info",
+        isRead: false,
+      },
+      { id: "invalid-1", title: 123 }, // invalid title type
+      null, // invalid null
+      "not-an-object", // invalid string
+      {
+        id: "valid-2",
+        title: "Valid Title 2",
+        message: "Valid Message 2",
+        timestamp: "2026-01-01T00:00:00Z",
+        status: "success",
+        isRead: true,
+      },
+    ];
+    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(mixedStored));
+
+    const { result } = renderHook(() => useNotifications());
+
+    assert.equal(result.current.notifications.length, 2);
+    assert.equal(result.current.notifications[0]?.id, "valid-1");
+    assert.equal(result.current.notifications[1]?.id, "valid-2");
+
+    // Storage should be overwritten with filtered set
+    const stored = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
+    assert.ok(stored);
+    const parsed = JSON.parse(stored);
+    assert.equal(parsed.length, 2);
+    assert.equal(parsed[0].id, "valid-1");
+    assert.equal(parsed[1].id, "valid-2");
+  });
+
   it("persists changes to localStorage", () => {
     const { result } = renderHook(() => useNotifications());
 
