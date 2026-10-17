@@ -6,6 +6,7 @@ import {
   loadOnboardingState,
   saveOnboardingState
 } from './onboarding-state';
+import { STORAGE_KEYS } from './storage-keys';
 
 function createLocalStorage() {
   const store = new Map<string, string>();
@@ -44,16 +45,13 @@ describe('onboarding-state adapter', () => {
   });
 
   it('returns null when onboarding state is invalid JSON', () => {
-    globalThis.localStorage.setItem('nw_onboarding_state', '{ invalid json');
+    globalThis.localStorage.setItem(STORAGE_KEYS.ONBOARDING_STATE, '{ invalid json');
     assert.strictEqual(loadOnboardingState(), null);
   });
 
-  it('loads from legacy key when canonical key is missing', () => {
-    const legacy = { completed: false, lastStep: 1, timestamp: 1680000000000 };
-    globalThis.localStorage.setItem('onboarding-state', JSON.stringify(legacy));
-
-    const loaded = loadOnboardingState();
-    assert.deepStrictEqual(loaded, legacy);
+  it('returns null when stored state has no boolean completed flag', () => {
+    globalThis.localStorage.setItem(STORAGE_KEYS.ONBOARDING_STATE, JSON.stringify({ lastStep: 1 }));
+    assert.strictEqual(loadOnboardingState(), null);
   });
 
   it('clears onboarding state from localStorage', () => {
