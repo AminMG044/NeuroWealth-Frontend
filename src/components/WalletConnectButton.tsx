@@ -43,6 +43,13 @@ const LoaderIcon = () => (
 interface WalletConnectButtonProps {
   theme?: "light" | "dark";
 }
+export function findSwkModal(node: HTMLElement): Element | null {
+  if (node.matches && (node.matches('[class*="swk"]') || node.matches('[class*="modal"]'))) {
+    return node;
+  }
+  return node.querySelector('[class*="swk"]') || node.querySelector('[class*="modal"]');
+}
+
 export default function WalletConnectButton({
   theme = "light",
 }: WalletConnectButtonProps) {
@@ -118,7 +125,7 @@ export default function WalletConnectButton({
           for (const node of Array.from(mutation.addedNodes)) {
             if (node instanceof HTMLElement) {
               // Check if the node itself or any descendant matches the modal selector
-              const modalElement = node.querySelector('[class*="swk"]') || node.querySelector('[class*="modal"]');
+              const modalElement = findSwkModal(node);
               if (modalElement) {
                 handleModalMutations(modalElement);
                 const newModalObserver = new MutationObserver(() => handleModalMutations(modalElement));
