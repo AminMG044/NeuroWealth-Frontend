@@ -451,7 +451,8 @@ export default function ImageCrop({
               background: "transparent",
               color: "#9ca3af",
               borderRadius: 6,
-              padding: "6px 14px",
+              padding: "10px 16px",
+              minHeight: 44,
               transition: "background 0.12s",
             }}
           >
@@ -469,7 +470,8 @@ export default function ImageCrop({
             background: "#6366f1",
             color: "#fff",
             borderRadius: 6,
-            padding: "6px 16px",
+            padding: "10px 18px",
+            minHeight: 44,
             fontWeight: 500,
             opacity: ready ? 1 : 0.5,
             transition: "opacity 0.12s",

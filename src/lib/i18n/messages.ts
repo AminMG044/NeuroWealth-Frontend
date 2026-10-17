@@ -889,6 +889,13 @@ export interface AppMessages {
       Records: string;
     };
   };
+  sidebar: {
+    ariaLabel: string;
+    navigationAriaLabel: string;
+    collapseSidebar: string;
+    expandSidebar: string;
+    userFallback: string;
+  };
 }
 
 export const localeToIntl: Record<AppLocale, string> = {
@@ -2014,6 +2021,13 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         Records: "Records",
       },
     },
+    sidebar: {
+      ariaLabel: "Dashboard sidebar",
+      navigationAriaLabel: "Sidebar navigation",
+      collapseSidebar: "Collapse sidebar",
+      expandSidebar: "Expand sidebar",
+      userFallback: "User",
+    },
   },
   fr: {
     locale: {
@@ -3133,6 +3147,13 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         Actions: "Actions",
         Records: "Enregistrements",
       },
+    },
+    sidebar: {
+      ariaLabel: "Barre latérale du tableau de bord",
+      navigationAriaLabel: "Navigation de la barre latérale",
+      collapseSidebar: "Réduire la barre latérale",
+      expandSidebar: "Développer la barre latérale",
+      userFallback: "Utilisateur",
     },
   },
 };
