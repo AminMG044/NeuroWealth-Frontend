@@ -5,6 +5,7 @@ import { useWallet } from "@/contexts";
 import { NetworkMismatchWarning } from "@/components/wallet/NetworkMismatchWarning";
 import { useToast } from "@/components/notifications/ToastProvider";
 import { logger } from "@/lib/logger";
+import { truncateWalletAddress } from "@/lib/user";
 
 const WalletIcon = () => (
   <svg
@@ -44,10 +45,16 @@ interface WalletConnectButtonProps {
   theme?: "light" | "dark";
 }
 export function findSwkModal(node: HTMLElement): Element | null {
-  if (node.matches && (node.matches('[class*="swk"]') || node.matches('[class*="modal"]'))) {
+  if (
+    node.matches &&
+    (node.matches('[class*="swk"]') || node.matches('[class*="modal"]'))
+  ) {
     return node;
   }
-  return node.querySelector('[class*="swk"]') || node.querySelector('[class*="modal"]');
+  return (
+    node.querySelector('[class*="swk"]') ||
+    node.querySelector('[class*="modal"]')
+  );
 }
 
 export default function WalletConnectButton({
@@ -113,7 +120,8 @@ export default function WalletConnectButton({
           line-height: 1.5;
           border: 1px solid rgba(156, 163, 175, 0.3);
         `;
-        messageContainer.textContent = "🧠 Connect your Stellar wallet to access NeuroWealth's AI-powered investment strategies and portfolio management tools.";
+        messageContainer.textContent =
+          "🧠 Connect your Stellar wallet to access NeuroWealth's AI-powered investment strategies and portfolio management tools.";
         customMessage.appendChild(messageContainer);
         modal.appendChild(customMessage);
       }
@@ -121,15 +129,20 @@ export default function WalletConnectButton({
 
     const rootObserver = new MutationObserver((mutationsList, observer) => {
       for (const mutation of mutationsList) {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
           for (const node of Array.from(mutation.addedNodes)) {
             if (node instanceof HTMLElement) {
               // Check if the node itself or any descendant matches the modal selector
               const modalElement = findSwkModal(node);
               if (modalElement) {
                 handleModalMutations(modalElement);
-                const newModalObserver = new MutationObserver(() => handleModalMutations(modalElement));
-                newModalObserver.observe(modalElement, { childList: true, subtree: true });
+                const newModalObserver = new MutationObserver(() =>
+                  handleModalMutations(modalElement),
+                );
+                newModalObserver.observe(modalElement, {
+                  childList: true,
+                  subtree: true,
+                });
                 modalObserverRef.current = newModalObserver;
                 observer.disconnect(); // Disconnect the root observer once the modal is found
                 return;
@@ -180,7 +193,7 @@ export default function WalletConnectButton({
   const getButtonText = () => {
     if (isLoading) return connected ? "Disconnecting..." : "Connecting...";
     if (connected && publicKey) {
-      const truncated = `${publicKey.slice(0, 6)}...${publicKey.slice(-6)}`;
+      const truncated = truncateWalletAddress(publicKey);
       return `${truncated} (${walletName})`;
     }
     return "Connect Wallet";
