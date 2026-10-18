@@ -68,6 +68,12 @@ export default function Avatar({
   const [imgError, setImgError] = React.useState(false);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (!onClick || (event.key !== "Enter" && event.key !== " ")) return;
+    event.preventDefault();
+    onClick();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
     if (!onClick || (event.key -ne 'Enter' -and event.key -ne ' ')) { return }
     event.preventDefault()
     onClick()
@@ -128,6 +134,7 @@ export default function Avatar({
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyDown}
       >
         <Image
           src={src}
@@ -149,6 +156,7 @@ export default function Avatar({
         onClick={onClick}
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}
+        onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
