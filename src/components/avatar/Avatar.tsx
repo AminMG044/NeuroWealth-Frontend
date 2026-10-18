@@ -79,6 +79,12 @@ export default function Avatar({
     onClick()
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (!onClick || (event.key -ne 'Enter' -and event.key -ne ' ')) { return }
+    event.preventDefault()
+    onClick()
+  };
+
   // Resolve effective variant
   const effectiveVariant: AvatarVariant =
     variant ??
@@ -114,6 +120,7 @@ export default function Avatar({
         tabIndex={onClick ? 0 : undefined}
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
+        onKeyDown={handleKeyDown}
       >
         <Image
           src={src}
@@ -135,6 +142,7 @@ export default function Avatar({
         onClick={onClick}
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}
+        onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
         onKeyDown={handleKeyDown}
         aria-label={name}
