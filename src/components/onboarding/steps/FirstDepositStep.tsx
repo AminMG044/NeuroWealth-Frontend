@@ -3,13 +3,9 @@
 import { useState } from 'react';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
 import { random } from '@/lib/seeded-rng';
-import { Spinner } from '@/components/ui/Spinner';
 import { STORAGE_KEYS } from '@/lib/storage-keys';
-import { Spinner } from '@/components/ui/Spinner';
 import { useI18n } from '@/contexts/I18nContext';
-import { Spinner } from '@/components/ui/Spinner';
 
 interface FirstDepositStepProps {
   onNext: () => void;
