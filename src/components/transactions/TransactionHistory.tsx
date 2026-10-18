@@ -699,20 +699,15 @@ export function TransactionHistory({ embedded = false }: TransactionHistoryProps
           </div>
         )}
 
-        {/* Loading indicator (accessible) */}
+        {/* One coherent loading announcement with its visual indicator. */}
         {loading && (
-          <div role="status" aria-label={t.loadingLabel} className="sr-only">
-            {t.loadingText}
+          <div className="flex justify-end mb-2">
+            <div role="status" aria-live="polite" aria-label="Loading transactions" className="sr-only">
+              Loading transaction historyâ€¦
+            </div>
+            <Loader2 size={14} className="text-slate-600 animate-spin" aria-hidden />
           </div>
         )}
-
-        {/* Spinning indicator shown near results */}
-        {loading && (
-          <div className="flex justify-end mb-2" aria-hidden>
-            <Loader2 size={14} className="text-slate-600 animate-spin" />
-          </div>
-        )}
-
         {/* Desktop table */}
         {!isEmpty && <DesktopTable data={data} loading={loading} />}
 
