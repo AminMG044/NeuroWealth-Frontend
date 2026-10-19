@@ -166,9 +166,19 @@ export interface AppMessages {
     };
   };
   settings: {
+    nav: {
+      sidebarLabel: string;
+      navigationLabel: string;
+      title: string;
+      preferences: string;
+      security: string;
+      notifications: string;
+      privacy: string;
+    };
     index: {
       title: string;
       subtitle: string;
+      onboardingTitle: string;
       appearance: {
         title: string;
         themeTitle: string;
@@ -314,6 +324,14 @@ export interface AppMessages {
         daysAgoSuffix: string;
         warning: string;
         changeAction: string;
+      };
+      passwordStrength: {
+        tooShort: string;
+        weak: string;
+        medium: string;
+        strong: string;
+        strengthLabel: string;
+        minCharsHint: string;
       };
       twoFactor: {
         title: string;
@@ -1174,9 +1192,19 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       },
     },
     settings: {
+      nav: {
+        sidebarLabel: "Settings sidebar",
+        navigationLabel: "Settings navigation",
+        title: "Settings",
+        preferences: "Preferences",
+        security: "Security",
+        notifications: "Notifications",
+        privacy: "Privacy",
+      },
       index: {
         title: "Settings",
         subtitle: "Manage your account preferences and connected wallet.",
+        onboardingTitle: "Onboarding",
         appearance: {
           title: "Appearance",
           themeTitle: "Theme",
@@ -1322,6 +1350,14 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           daysAgoSuffix: "days ago",
           warning: "Your password is over 90 days old. Consider updating it.",
           changeAction: "Change password",
+        },
+        passwordStrength: {
+          tooShort: "Too short (min 8 chars)",
+          weak: "Weak",
+          medium: "Medium",
+          strong: "Strong",
+          strengthLabel: "Strength:",
+          minCharsHint: "Must be at least 8 characters",
         },
         twoFactor: {
           title: "Two-Factor Authentication",
@@ -2305,9 +2341,19 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       },
     },
     settings: {
+      nav: {
+        sidebarLabel: "Barre latérale des paramètres",
+        navigationLabel: "Navigation des paramètres",
+        title: "Paramètres",
+        preferences: "Préférences",
+        security: "Sécurité",
+        notifications: "Notifications",
+        privacy: "Confidentialité",
+      },
       index: {
         title: "Paramètres",
         subtitle: "Gérez les préférences de votre compte et votre portefeuille connecté.",
+        onboardingTitle: "Configuration initiale",
         appearance: {
           title: "Apparence",
           themeTitle: "Thème",
@@ -2453,6 +2499,14 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           daysAgoSuffix: "jours",
           warning: "Votre mot de passe date de plus de 90 jours. Pensez à le mettre à jour.",
           changeAction: "Changer le mot de passe",
+        },
+        passwordStrength: {
+          tooShort: "Trop court (min 8 caractères)",
+          weak: "Faible",
+          medium: "Moyen",
+          strong: "Fort",
+          strengthLabel: "Force :",
+          minCharsHint: "Doit contenir au moins 8 caractères",
         },
         twoFactor: {
           title: "Authentification à deux facteurs",
