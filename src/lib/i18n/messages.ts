@@ -386,6 +386,9 @@ export interface AppMessages {
         balanced: { title: string; riskLabel: string; description: string; primaryAction: string };
         growth: { title: string; riskLabel: string; description: string; primaryAction: string };
       };
+      loadError: string;
+      saveError: string;
+      retry: string;
     };
     onboarding: {
       title: string;
@@ -876,6 +879,39 @@ export interface AppMessages {
     inApp: string;
     emailDigest: string;
     push: string;
+  };
+  notifications: {
+    title: string;
+    preferencesTitle: string;
+    regionAriaLabel: string;
+    openPreferencesAriaLabel: string;
+    backToListAriaLabel: string;
+    empty: string;
+    loadMore: string;
+    markAllAsRead: string;
+    unreadAriaLabel: string;
+  };
+  topHeader: {
+    notificationsAriaLabel: string;
+  };
+  strategyList: {
+    title: string;
+    results: string;
+    noResults: string;
+    statReturn: string;
+    statParticipants: string;
+    filters: {
+      lowRisk: string;
+      mediumRisk: string;
+      highRisk: string;
+      growth: string;
+      income: string;
+      balanced: string;
+      defensive: string;
+      active: string;
+      paused: string;
+      archived: string;
+    };
   };
   globalSearch: {
     label: string;
@@ -1409,6 +1445,9 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
             primaryAction: "Select Growth",
           },
         },
+        loadError: "Unable to load your saved strategy. You can still pick one below.",
+        saveError: "Failed to save strategy. Please try again.",
+        retry: "Retry",
       },
       onboarding: {
         title: "Onboarding Settings",
@@ -2013,6 +2052,39 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       emailDigest: "Email Digest",
       push: "Push Notifications",
     },
+    notifications: {
+      title: "Notifications",
+      preferencesTitle: "Preferences",
+      regionAriaLabel: "Notifications",
+      openPreferencesAriaLabel: "Open notification preferences",
+      backToListAriaLabel: "Back to notification list",
+      empty: "No notifications yet.",
+      loadMore: "Load More",
+      markAllAsRead: "Mark all as read",
+      unreadAriaLabel: "{{count}} unread",
+    },
+    topHeader: {
+      notificationsAriaLabel: "Notifications",
+    },
+    strategyList: {
+      title: "Investment Strategies",
+      results: "results",
+      noResults: "No strategies match the selected filters.",
+      statReturn: "RETURN",
+      statParticipants: "PARTICIPANTS",
+      filters: {
+        lowRisk: "Low Risk",
+        mediumRisk: "Medium Risk",
+        highRisk: "High Risk",
+        growth: "Growth",
+        income: "Income",
+        balanced: "Balanced",
+        defensive: "Defensive",
+        active: "Active",
+        paused: "Paused",
+        archived: "Archived",
+      },
+    },
     globalSearch: {
       label: "Global search",
       placeholder: "Search pages, actions, or records",
@@ -2540,6 +2612,9 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
             primaryAction: "Choisir Croissance",
           },
         },
+        loadError: "Impossible de charger votre stratégie enregistrée. Vous pouvez tout de même en choisir une ci-dessous.",
+        saveError: "Échec de l'enregistrement de la stratégie. Veuillez réessayer.",
+        retry: "Réessayer",
       },
       onboarding: {
         title: "Paramètres d'intégration",
@@ -3143,6 +3218,39 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       inApp: "Notifications in-app",
       emailDigest: "Résumé par e-mail",
       push: "Notifications push",
+    },
+    notifications: {
+      title: "Notifications",
+      preferencesTitle: "Préférences",
+      regionAriaLabel: "Notifications",
+      openPreferencesAriaLabel: "Ouvrir les préférences de notification",
+      backToListAriaLabel: "Retour à la liste de notifications",
+      empty: "Aucune notification pour le moment.",
+      loadMore: "Charger plus",
+      markAllAsRead: "Tout marquer comme lu",
+      unreadAriaLabel: "{{count}} non lues",
+    },
+    topHeader: {
+      notificationsAriaLabel: "Notifications",
+    },
+    strategyList: {
+      title: "Stratégies d'investissement",
+      results: "résultats",
+      noResults: "Aucune stratégie ne correspond aux filtres sélectionnés.",
+      statReturn: "RENDEMENT",
+      statParticipants: "PARTICIPANTS",
+      filters: {
+        lowRisk: "Risque faible",
+        mediumRisk: "Risque moyen",
+        highRisk: "Risque élevé",
+        growth: "Croissance",
+        income: "Revenu",
+        balanced: "Équilibré",
+        defensive: "Défensif",
+        active: "Actif",
+        paused: "En pause",
+        archived: "Archivé",
+      },
     },
     globalSearch: {
       label: "Recherche globale",

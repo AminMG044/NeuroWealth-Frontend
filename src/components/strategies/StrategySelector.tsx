@@ -529,7 +529,7 @@ export function StrategySelector() {
         const message =
           err instanceof ApiRequestError
             ? err.message
-            : "Unable to load your saved strategy. You can still pick one below.";
+            : t.loadError;
         dispatch({ type: "LOAD_ERROR", message });
       });
 
@@ -569,7 +569,7 @@ export function StrategySelector() {
       const message =
         err instanceof ApiRequestError
           ? err.message
-          : "Failed to save strategy. Please try again.";
+          : t.saveError;
       dispatch({ type: "SAVE_ERROR", message });
     }
   }
@@ -607,7 +607,7 @@ export function StrategySelector() {
               onClick={retryLoad}
               className="shrink-0 rounded-lg border border-red-400/40 px-3 py-1.5 text-xs font-semibold text-red-300 transition-colors hover:bg-red-500/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-red-400"
             >
-              Retry
+              {t.retry}
             </button>
           </div>
         )}
