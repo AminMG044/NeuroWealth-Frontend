@@ -35,21 +35,17 @@ export function useOnboardingFlow({
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    const stored = loadOnboardingState();
-    if (!stored) return;
-    if (stored.completed) {
+    const saved = loadOnboardingState();
+    if (!saved) return;
+    if (saved.completed) {
       setIsCompleted(true);
-    } else if (typeof stored.lastStep === 'number') {
-      setCurrentStep(stored.lastStep);
+    } else if (typeof saved.lastStep === 'number') {
+      setCurrentStep(saved.lastStep);
     }
   }, []);
 
   function persist(step: number, completed = false) {
-    saveOnboardingState({
-      lastStep: step,
-      completed,
-      timestamp: Date.now(),
-    });
+    saveOnboardingState({ lastStep: step, completed, timestamp: Date.now() });
   }
 
   function handleNext() {

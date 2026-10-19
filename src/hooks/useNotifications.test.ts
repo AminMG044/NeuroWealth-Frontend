@@ -191,33 +191,49 @@ describe("useNotifications", () => {
     assert.equal(notif.isRead, true);
   });
 
-  // #1053 — cross-tab storage sync must rehydrate this hook's list.
-  it("syncs when another tab updates the same storage key", () => {
+  // #1042 — another tab's markAllAsRead/clear must reach this tab's state.
+  it("re-syncs when another tab updates the notifications key", () => {
     const { result } = renderHook(() => useNotifications());
+    assert.ok(result.current.unreadCount > 0);
 
-    const synced = [
-      {
-        id: "synced-1",
-        title: "Synced from other tab",
-        message: "Mark-as-read landed in another tab",
-        timestamp: "2026-01-01T00:00:00Z",
-        status: "info" as const,
-        isRead: true,
-      },
-    ];
-
+    const allRead = result.current.notifications.map((n) => ({ ...n, isRead: true }));
     act(() => {
-      localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(synced));
       window.dispatchEvent(
-        new window.StorageEvent("storage", {
+        new StorageEvent("storage", {
           key: NOTIFICATION_STORAGE_KEY,
-          newValue: JSON.stringify(synced),
+          newValue: JSON.stringify(allRead),
         }),
       );
     });
 
-    assert.equal(result.current.notifications.length, 1);
-    assert.equal(result.current.notifications[0]?.id, "synced-1");
     assert.equal(result.current.unreadCount, 0);
+  });
+
+  it("re-syncs to an empty list when another tab clears notifications", () => {
+    const { result } = renderHook(() => useNotifications());
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify([]),
+        }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, 0);
+  });
+
+  it("ignores storage events for unrelated keys", () => {
+    const { result } = renderHook(() => useNotifications());
+    const before = result.current.notifications.length;
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "some-other-key", newValue: "[]" }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, before);
   });
 });

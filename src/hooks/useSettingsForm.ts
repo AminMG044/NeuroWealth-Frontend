@@ -84,11 +84,13 @@ export function useSettingsForm<T>(
     }
   }, [storageKey]);
 
-  useStorageSync(storageKey, () => {
+  const handleStorageSync = useCallback(() => {
     if (!editingRef.current) {
       syncFromStorage();
     }
-  });
+  }, [syncFromStorage]);
+
+  useStorageSync(storageKey, handleStorageSync);
 
   useEffect(() => {
     const timer = setTimeout(() => {

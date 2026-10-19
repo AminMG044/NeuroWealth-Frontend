@@ -825,6 +825,81 @@ export interface AppMessages {
       }[];
     };
   };
+  onboardingSteps: {
+    walletConnect: {
+      title: string;
+      description: string;
+      recommended: string;
+      securityNoticeTitle: string;
+      securityNoticeBody: string;
+      connectButton: string;
+      connectingButton: string;
+      skipButton: string;
+      noWalletPrompt: string;
+      learnMore: string;
+      walletDescriptions: {
+        freighter: string;
+        albedo: string;
+        ledger: string;
+      };
+      errorConnectionFailed: string;
+      errorGeneric: string;
+    };
+    firstDeposit: {
+      title: string;
+      description: string;
+      selectAssetHeading: string;
+      balancePrefix: string;
+      depositAmountHeading: string;
+      customAmountPlaceholder: string;
+      totalToDeposit: string;
+      feeInfoTitle: string;
+      feeInfoBody: string;
+      depositButton: string;
+      depositingButton: string;
+      skipButton: string;
+      questionsPrompt: string;
+      viewGuide: string;
+      errorInvalidAmount: string;
+      errorInsufficientBalance: string;
+      errorMinDeposit: string;
+      errorTransactionFailed: string;
+      errorGeneric: string;
+    };
+  };
+  notificationPreferences: {
+    categoriesHeading: string;
+    channelsHeading: string;
+    transactions: string;
+    systemEvents: string;
+    promotions: string;
+    inApp: string;
+    emailDigest: string;
+    push: string;
+  };
+  globalSearch: {
+    label: string;
+    placeholder: string;
+    clearAriaLabel: string;
+    searching: string;
+    errorTitle: string;
+    errorMessage: string;
+    errorRetry: string;
+    errorOr: string;
+    noMatchesTitle: string;
+    noMatchesHint: string;
+    liveRegion: {
+      errorPrefix: string;
+      noResults: string;
+      resultsAvailable: string;
+      resultsAvailableSingular: string;
+    };
+    groups: {
+      Pages: string;
+      Actions: string;
+      Records: string;
+    };
+  };
 }
 
 export const localeToIntl: Record<AppLocale, string> = {
@@ -1964,6 +2039,81 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         ],
       },
     },
+    onboardingSteps: {
+      walletConnect: {
+        title: "Connect Your Wallet",
+        description: "Choose a wallet to secure your NeuroWealth account. Your wallet will be used to sign transactions and manage your assets.",
+        recommended: "Recommended",
+        securityNoticeTitle: "Security Notice",
+        securityNoticeBody: "Never share your private keys or seed phrase with anyone. NeuroWealth will never ask for your wallet credentials.",
+        connectButton: "Connect Wallet",
+        connectingButton: "Connecting...",
+        skipButton: "Skip for Now",
+        noWalletPrompt: "Don't have a wallet?",
+        learnMore: "Learn more",
+        walletDescriptions: {
+          freighter: "Popular browser wallet for Stellar",
+          albedo: "Secure web-based wallet",
+          ledger: "Hardware wallet for maximum security",
+        },
+        errorConnectionFailed: "Connection failed. Please try again.",
+        errorGeneric: "Connection failed",
+      },
+      firstDeposit: {
+        title: "Make Your First Deposit",
+        description: "Start your investment journey by depositing funds into your NeuroWealth account.",
+        selectAssetHeading: "Select Asset",
+        balancePrefix: "Balance:",
+        depositAmountHeading: "Deposit Amount",
+        customAmountPlaceholder: "Enter custom amount",
+        totalToDeposit: "Total to Deposit:",
+        feeInfoTitle: "Fee Information",
+        feeInfoBody: "Network fees: 0.00001 XLM per operation. No NeuroWealth deposit fees. Your deposit should arrive within 5-10 seconds.",
+        depositButton: "Deposit Funds",
+        depositingButton: "Depositing...",
+        skipButton: "Skip for Now",
+        questionsPrompt: "Questions about deposits?",
+        viewGuide: "View deposit guide",
+        errorInvalidAmount: "Please enter a valid amount",
+        errorInsufficientBalance: "Insufficient balance",
+        errorMinDeposit: "Minimum deposit is 10",
+        errorTransactionFailed: "Transaction failed. Please try again.",
+        errorGeneric: "Deposit failed",
+      },
+    },
+    notificationPreferences: {
+      categoriesHeading: "Categories",
+      channelsHeading: "Channels",
+      transactions: "Transactions",
+      systemEvents: "System Events",
+      promotions: "Promotions",
+      inApp: "In-App Notifications",
+      emailDigest: "Email Digest",
+      push: "Push Notifications",
+    },
+    globalSearch: {
+      label: "Global search",
+      placeholder: "Search pages, actions, or records",
+      clearAriaLabel: "Clear search",
+      searching: "Searching index...",
+      errorTitle: "Search unavailable",
+      errorMessage: "Search is temporarily unavailable. Please try again.",
+      errorRetry: "Retry",
+      errorOr: "Or try a different query.",
+      noMatchesTitle: "No matches",
+      noMatchesHint: "Try a different route name, action verb, or record ID.",
+      liveRegion: {
+        errorPrefix: "Search error:",
+        noResults: "No results found for",
+        resultsAvailable: "search results available. Use arrow keys to navigate.",
+        resultsAvailableSingular: "search result available. Use arrow keys to navigate.",
+      },
+      groups: {
+        Pages: "Pages",
+        Actions: "Actions",
+        Records: "Records",
+      },
+    },
   },
   fr: {
     locale: {
@@ -3096,6 +3246,81 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
             ],
           },
         ],
+      },
+    },
+    onboardingSteps: {
+      walletConnect: {
+        title: "Connecter votre wallet",
+        description: "Choisissez un wallet pour sécuriser votre compte NeuroWealth. Votre wallet sera utilisé pour signer les transactions et gérer vos actifs.",
+        recommended: "Recommandé",
+        securityNoticeTitle: "Avertissement de sécurité",
+        securityNoticeBody: "Ne partagez jamais vos clés privées ou votre phrase secrète avec qui que ce soit. NeuroWealth ne vous demandera jamais vos identifiants de wallet.",
+        connectButton: "Connecter le wallet",
+        connectingButton: "Connexion en cours...",
+        skipButton: "Passer pour l'instant",
+        noWalletPrompt: "Vous n'avez pas de wallet ?",
+        learnMore: "En savoir plus",
+        walletDescriptions: {
+          freighter: "Wallet de navigateur populaire pour Stellar",
+          albedo: "Wallet web sécurisé",
+          ledger: "Wallet matériel pour une sécurité maximale",
+        },
+        errorConnectionFailed: "Échec de la connexion. Veuillez réessayer.",
+        errorGeneric: "Échec de la connexion",
+      },
+      firstDeposit: {
+        title: "Effectuer votre premier dépôt",
+        description: "Lancez votre parcours d'investissement en déposant des fonds sur votre compte NeuroWealth.",
+        selectAssetHeading: "Sélectionner un actif",
+        balancePrefix: "Solde :",
+        depositAmountHeading: "Montant du dépôt",
+        customAmountPlaceholder: "Saisir un montant personnalisé",
+        totalToDeposit: "Total à déposer :",
+        feeInfoTitle: "Informations sur les frais",
+        feeInfoBody: "Frais réseau : 0,00001 XLM par opération. Aucun frais de dépôt NeuroWealth. Votre dépôt devrait arriver dans les 5 à 10 secondes.",
+        depositButton: "Déposer des fonds",
+        depositingButton: "Dépôt en cours...",
+        skipButton: "Passer pour l'instant",
+        questionsPrompt: "Des questions sur les dépôts ?",
+        viewGuide: "Voir le guide des dépôts",
+        errorInvalidAmount: "Veuillez saisir un montant valide",
+        errorInsufficientBalance: "Solde insuffisant",
+        errorMinDeposit: "Le dépôt minimum est de 10",
+        errorTransactionFailed: "Échec de la transaction. Veuillez réessayer.",
+        errorGeneric: "Échec du dépôt",
+      },
+    },
+    notificationPreferences: {
+      categoriesHeading: "Catégories",
+      channelsHeading: "Canaux",
+      transactions: "Transactions",
+      systemEvents: "Événements système",
+      promotions: "Promotions",
+      inApp: "Notifications in-app",
+      emailDigest: "Résumé par e-mail",
+      push: "Notifications push",
+    },
+    globalSearch: {
+      label: "Recherche globale",
+      placeholder: "Rechercher des pages, des actions ou des enregistrements",
+      clearAriaLabel: "Effacer la recherche",
+      searching: "Recherche en cours...",
+      errorTitle: "Recherche indisponible",
+      errorMessage: "La recherche est temporairement indisponible. Veuillez réessayer.",
+      errorRetry: "Réessayer",
+      errorOr: "Ou essayez une autre requête.",
+      noMatchesTitle: "Aucun résultat",
+      noMatchesHint: "Essayez un autre nom de page, un verbe d'action ou un identifiant d'enregistrement.",
+      liveRegion: {
+        errorPrefix: "Erreur de recherche :",
+        noResults: "Aucun résultat trouvé pour",
+        resultsAvailable: "résultats disponibles. Utilisez les flèches pour naviguer.",
+        resultsAvailableSingular: "résultat disponible. Utilisez les flèches pour naviguer.",
+      },
+      groups: {
+        Pages: "Pages",
+        Actions: "Actions",
+        Records: "Enregistrements",
       },
     },
   },

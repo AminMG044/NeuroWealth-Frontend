@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { renderHook, act } from "@/test-utils/render-hook";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
-import { loadOnboardingState } from "@/lib/onboarding-state";
+import { loadOnboardingState, saveOnboardingState } from "@/lib/onboarding-state";
 import { useOnboardingFlow } from "./useOnboardingFlow";
 
 // #953 — a per-step "Skip for Now" / "Decide Later" must advance the flow
@@ -10,9 +10,11 @@ import { useOnboardingFlow } from "./useOnboardingFlow";
 
 const STORAGE_KEY = STORAGE_KEYS.ONBOARDING_STATE;
 
-function readPersisted(): { lastStep?: number; completed?: boolean } | null {
+function readPersisted(): { lastStep?: number; completed?: boolean; timestamp?: number } | null {
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as { lastStep?: number; completed?: boolean }) : null;
+  return raw
+    ? (JSON.parse(raw) as { lastStep?: number; completed?: boolean; timestamp?: number })
+    : null;
 }
 
 describe("useOnboardingFlow handleStepSkip", () => {
@@ -113,9 +115,37 @@ describe("useOnboardingFlow handleStepSkip", () => {
   });
 });
 
-describe("useOnboardingFlow / onboarding-state consolidation", () => {
+// #1040 — the hook reads/writes through onboarding-state.ts, so state saved by
+// OnboardingGate/OnboardingSettings and state saved by the flow stay in step.
+describe("useOnboardingFlow persistence", () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  it("resumes from a step saved via saveOnboardingState", () => {
+    saveOnboardingState({ completed: false, lastStep: 2, timestamp: 1 });
+
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 4 }));
+
+    assert.equal(result.current.currentStep, 2);
+    assert.equal(result.current.isCompleted, false);
+  });
+
+  it("starts completed when saveOnboardingState marked it complete", () => {
+    saveOnboardingState({ completed: true, timestamp: 1 });
+
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 4 }));
+
+    assert.equal(result.current.isCompleted, true);
+  });
+
+  it("ignores stored state that onboarding-state.ts rejects as invalid", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ lastStep: 2 }));
+
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 4 }));
+
+    assert.equal(result.current.currentStep, 0);
+    assert.equal(result.current.isCompleted, false);
   });
 
   // #1054 — values written by the flow hook must round-trip through the shared adapter.
@@ -127,11 +157,7 @@ describe("useOnboardingFlow / onboarding-state consolidation", () => {
     });
 
     const loaded = loadOnboardingState();
-    const raw = readPersisted() as {
-      lastStep?: number;
-      completed?: boolean;
-      timestamp?: number;
-    } | null;
+    const raw = readPersisted();
 
     assert.ok(loaded);
     assert.ok(raw);

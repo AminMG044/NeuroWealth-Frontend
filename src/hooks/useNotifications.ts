@@ -53,6 +53,8 @@ export function useNotifications() {
   });
   const [loading] = useState(false);
 
+  // Rehydrate when another tab marks/clears notifications. Read-only here:
+  // writing back from a storage event would echo between open tabs.
   const syncNotifications = useCallback((nextValue: string | null) => {
     if (nextValue == null) {
       setNotifications(MOCK_NOTIFICATIONS);
@@ -61,13 +63,8 @@ export function useNotifications() {
 
     try {
       const parsed = JSON.parse(nextValue);
-      if (!Array.isArray(parsed)) {
-        setNotifications(MOCK_NOTIFICATIONS);
-        return;
-      }
-      const validNotifications = parsed.filter(isValidNotification);
       setNotifications(
-        validNotifications.length > 0 ? validNotifications : MOCK_NOTIFICATIONS,
+        Array.isArray(parsed) ? parsed.filter(isValidNotification) : MOCK_NOTIFICATIONS,
       );
     } catch {
       setNotifications(MOCK_NOTIFICATIONS);
