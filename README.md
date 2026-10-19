@@ -124,7 +124,7 @@ The frontend supports two runtime modes controlled by **server-only** env vars (
 | Mode | Condition | Behaviour |
 | --- | --- | --- |
 | **Demo / mock** | `NEUROWEALTH_API_BASE_URL` unset | All `/api/*` route handlers return in-process mock data (`source: "demo"`). No backend required — default for local dev and PR previews. |
-| **Real API** | `NEUROWEALTH_API_BASE_URL` set | Route handlers proxy to the backend via `createServerApiClient()` with `Authorization: Bearer <NEUROWEALTH_API_AUTH_TOKEN>`. |
+| **Real API** | `NEUROWEALTH_API_BASE_URL` set | Route handlers proxy to the backend via `createServerFetcher()` with `Authorization: Bearer <NEUROWEALTH_API_AUTH_TOKEN>`. |
 
 ### Request paths
 
@@ -203,7 +203,7 @@ ClientProviders
 
 3. **API requests**:
    - Browser → Next.js `/api/*` routes: authenticated via httpOnly cookie (no extra header needed)
-   - Next.js → Real backend: use `createServerApiClient()` in route handlers to inject Bearer token (from `NEUROWEALTH_API_AUTH_TOKEN` env)
+   - Next.js → Real backend: use `createServerFetcher()` in route handlers to inject Bearer token (from `NEUROWEALTH_API_AUTH_TOKEN` env)
    - All responses must conform to the standard envelope (see NEUROWEALTH_API.md)
    - Demo mode (no backend): all `/api/*` routes return mock data
 
