@@ -55,6 +55,8 @@ export function useNotificationPreferences() {
 
   useStorageSync(NOTIFICATION_PREFERENCES_STORAGE_KEY, syncPreferences);
 
+
+
   const updatePreference = (
     section: "categories" | "channels" | "emailDigest",
     key: string,
@@ -72,15 +74,6 @@ export function useNotificationPreferences() {
         NOTIFICATION_PREFERENCES_STORAGE_KEY,
         JSON.stringify(updated),
       );
-      if (typeof window !== "undefined") {
-        try {
-          const EventCtor = window.Event || Event;
-          window.dispatchEvent(new EventCtor("storage"));
-          window.dispatchEvent(new EventCtor("notification-preferences-updated"));
-        } catch {
-          // ignore dispatch issues in non-standard test environments
-        }
-      }
       return updated;
     });
   };

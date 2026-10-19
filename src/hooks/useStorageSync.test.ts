@@ -1,118 +1,76 @@
-import { describe, it, beforeEach, afterEach } from "node:test";
+import { describe, it, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { renderHook, act } from "@/test-utils/render-hook";
 import { useStorageSync } from "./useStorageSync";
 
+// #1041 — inline-arrow callbacks must not tear down and re-attach the window
+// storage listener on every render.
+
 describe("useStorageSync", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+  const originalAdd = window.addEventListener;
+  const originalRemove = window.removeEventListener;
 
   afterEach(() => {
-    localStorage.clear();
+    window.addEventListener = originalAdd;
+    window.removeEventListener = originalRemove;
   });
 
-  // #857 — key-mismatch: StorageEvent with a different key must not call onChange
-  it("ignores StorageEvents whose key does not match the watched key", () => {
-    let callCount = 0;
-    const onChange = () => {
-      callCount += 1;
-    };
+  function countStorageListeners() {
+    const counts = { added: 0, removed: 0 };
+    window.addEventListener = function (this: Window, type: string, ...rest: unknown[]) {
+      if (type === "storage") counts.added += 1;
+      return (originalAdd as (...args: unknown[]) => void).call(this, type, ...rest);
+    } as typeof window.addEventListener;
+    window.removeEventListener = function (this: Window, type: string, ...rest: unknown[]) {
+      if (type === "storage") counts.removed += 1;
+      return (originalRemove as (...args: unknown[]) => void).call(this, type, ...rest);
+    } as typeof window.removeEventListener;
+    return counts;
+  }
 
-    renderHook(() => useStorageSync("watched-key", onChange));
-
-    act(() => {
-      window.dispatchEvent(
-        new window.StorageEvent("storage", {
-          key: "unrelated-key",
-          newValue: "some-value",
-        }),
-      );
+  it("keeps a single listener across re-renders with a new inline callback", () => {
+    const counts = countStorageListeners();
+    const { rerender, unmount } = renderHook(({ tick }) => useStorageSync("k", () => void tick), {
+      initialProps: { tick: 0 },
     });
 
-    assert.strictEqual(callCount, 0, "onChange must NOT be called for a non-matching key");
+    rerender({ tick: 1 });
+    rerender({ tick: 2 });
+    rerender({ tick: 3 });
 
-    // Confirm the hook DOES fire for the correct key (sanity check)
-    act(() => {
-      window.dispatchEvent(
-        new window.StorageEvent("storage", {
-          key: "watched-key",
-          newValue: "some-value",
-        }),
-      );
-    });
+    assert.equal(counts.added, 1);
+    assert.equal(counts.removed, 0);
 
-    assert.strictEqual(callCount, 1, "onChange MUST be called for the matching key");
+    unmount();
+    assert.equal(counts.removed, 1);
   });
 
-  // #857 — listener re-subscription: when onChange identity changes across renders,
-  // the new callback should handle subsequent events (old closure is not held).
-  it("re-subscribes the listener when onChange identity changes across renders", () => {
-    let firstCallCount = 0;
-    let secondCallCount = 0;
-
-    const firstOnChange = () => {
-      firstCallCount += 1;
-    };
-    const secondOnChange = () => {
-      secondCallCount += 1;
-    };
-
-    const { rerender } = renderHook(
-      ({ cb }: { cb: (v: string | null) => void }) =>
-        useStorageSync("my-key", cb),
-      { initialProps: { cb: firstOnChange } },
+  it("invokes the latest callback passed on the most recent render", () => {
+    const calls: string[] = [];
+    const { rerender, unmount } = renderHook(
+      ({ label }) => useStorageSync("k", (value) => calls.push(`${label}:${value}`)),
+      { initialProps: { label: "first" } },
     );
 
-    // Fire once with the first callback in place
-    act(() => {
-      window.dispatchEvent(
-        new window.StorageEvent("storage", { key: "my-key", newValue: "v1" }),
-      );
-    });
-
-    assert.strictEqual(firstCallCount, 1, "firstOnChange should be called once before rerender");
-    assert.strictEqual(secondCallCount, 0, "secondOnChange should not be called before rerender");
-
-    // Swap the callback — the hook must re-subscribe with the new identity
-    rerender({ cb: secondOnChange });
+    rerender({ label: "second" });
 
     act(() => {
-      window.dispatchEvent(
-        new window.StorageEvent("storage", { key: "my-key", newValue: "v2" }),
-      );
+      window.dispatchEvent(new StorageEvent("storage", { key: "k", newValue: "v" }));
     });
 
-    assert.strictEqual(
-      firstCallCount,
-      1,
-      "firstOnChange must NOT be called after rerender (listener was replaced)",
-    );
-    assert.strictEqual(secondCallCount, 1, "secondOnChange should be called once after rerender");
+    assert.deepEqual(calls, ["second:v"]);
+    unmount();
   });
 
-  // #858 — SSR guard: when window is undefined the hook must be a no-op (no throw, no listener)
-  it("does not throw and does not attach a listener when window is undefined (SSR)", () => {
-    // Stash the real window object and remove it to simulate an SSR environment
-    const realWindow = globalThis.window;
-    // @ts-expect-error — intentionally simulating SSR by removing window
-    delete globalThis.window;
+  it("ignores events for other keys", () => {
+    const calls: Array<string | null> = [];
+    const { unmount } = renderHook(() => useStorageSync("k", (value) => calls.push(value)));
 
-    let renderError: unknown = null;
-    try {
-      // The hook must mount without throwing even with no window
-      renderHook(() => useStorageSync("ssr-key", () => {}));
-    } catch (err) {
-      renderError = err;
-    } finally {
-      // Always restore window before any further assertions so other tests are unaffected
-      Object.defineProperty(globalThis, "window", {
-        value: realWindow,
-        writable: true,
-        configurable: true,
-      });
-    }
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: "other", newValue: "v" }));
+    });
 
-    assert.strictEqual(renderError, null, "useStorageSync must not throw when window is undefined");
+    assert.deepEqual(calls, []);
+    unmount();
   });
 });

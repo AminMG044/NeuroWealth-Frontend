@@ -1,12 +1,8 @@
-'use client';
+"use client";
 
 import { useWallet, useWalletConfig } from "@/contexts";
 import { NetworkMismatchWarning } from "@/components/wallet/NetworkMismatchWarning";
-
-function truncateAddress(address: string) {
-  if (!address || address.length < 12) return address;
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
+import { truncateWalletAddress } from "@/lib/user";
 
 function formatNetworkLabel(network?: string) {
   if (!network) return "UNKNOWN";
@@ -37,7 +33,7 @@ export function NavWalletStatus() {
         </span>
         <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-mono text-emerald-400">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-          {truncateAddress(publicKey)}
+          {truncateWalletAddress(publicKey)}
         </span>
       </div>
       {networkStatus.hasMismatch && (

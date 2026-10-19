@@ -126,6 +126,45 @@ describe("useNotifications", () => {
     assert.ok(result.current.notifications.length > 0);
   });
 
+  it("filters out invalid items and keeps valid ones (per-item shape validation)", () => {
+    const mixedStored = [
+      {
+        id: "valid-1",
+        title: "Valid Title",
+        message: "Valid Message",
+        timestamp: "2026-01-01T00:00:00Z",
+        status: "info",
+        isRead: false,
+      },
+      { id: "invalid-1", title: 123 }, // invalid title type
+      null, // invalid null
+      "not-an-object", // invalid string
+      {
+        id: "valid-2",
+        title: "Valid Title 2",
+        message: "Valid Message 2",
+        timestamp: "2026-01-01T00:00:00Z",
+        status: "success",
+        isRead: true,
+      },
+    ];
+    localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(mixedStored));
+
+    const { result } = renderHook(() => useNotifications());
+
+    assert.equal(result.current.notifications.length, 2);
+    assert.equal(result.current.notifications[0]?.id, "valid-1");
+    assert.equal(result.current.notifications[1]?.id, "valid-2");
+
+    // Storage should be overwritten with filtered set
+    const stored = localStorage.getItem(NOTIFICATION_STORAGE_KEY);
+    assert.ok(stored);
+    const parsed = JSON.parse(stored);
+    assert.equal(parsed.length, 2);
+    assert.equal(parsed[0].id, "valid-1");
+    assert.equal(parsed[1].id, "valid-2");
+  });
+
   it("persists changes to localStorage", () => {
     const { result } = renderHook(() => useNotifications());
 
@@ -143,5 +182,51 @@ describe("useNotifications", () => {
       (n: { id: string; isRead: boolean }) => n.id === firstNotificationId,
     );
     assert.equal(notif.isRead, true);
+  });
+
+  // #1042 — another tab's markAllAsRead/clear must reach this tab's state.
+  it("re-syncs when another tab updates the notifications key", () => {
+    const { result } = renderHook(() => useNotifications());
+    assert.ok(result.current.unreadCount > 0);
+
+    const allRead = result.current.notifications.map((n) => ({ ...n, isRead: true }));
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify(allRead),
+        }),
+      );
+    });
+
+    assert.equal(result.current.unreadCount, 0);
+  });
+
+  it("re-syncs to an empty list when another tab clears notifications", () => {
+    const { result } = renderHook(() => useNotifications());
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", {
+          key: NOTIFICATION_STORAGE_KEY,
+          newValue: JSON.stringify([]),
+        }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, 0);
+  });
+
+  it("ignores storage events for unrelated keys", () => {
+    const { result } = renderHook(() => useNotifications());
+    const before = result.current.notifications.length;
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent("storage", { key: "some-other-key", newValue: "[]" }),
+      );
+    });
+
+    assert.equal(result.current.notifications.length, before);
   });
 });

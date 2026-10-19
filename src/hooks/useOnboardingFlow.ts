@@ -5,14 +5,7 @@
 // presentation component stays free of orchestration concerns.
 
 import { useState, useEffect } from 'react';
-import { STORAGE_KEYS } from '@/lib/storage-keys';
-
-const STORAGE_KEY = STORAGE_KEYS.ONBOARDING_STATE;
-
-interface OnboardingState {
-  currentStep: number;
-  isCompleted: boolean;
-}
+import { loadOnboardingState, saveOnboardingState } from '@/lib/onboarding-state';
 
 interface UseOnboardingFlowOptions {
   totalSteps: number;
@@ -27,6 +20,7 @@ export interface OnboardingFlowControls {
   handleNext: () => void;
   handleBack: () => void;
   handleSkip: () => void;
+  handleStepSkip: () => void;
   handleStepClick: (stepIndex: number) => void;
   resetFlow: () => void;
 }
@@ -41,29 +35,17 @@ export function useOnboardingFlow({
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const { completed, lastStep } = JSON.parse(raw) as { completed?: boolean; lastStep?: number };
-      if (completed) {
-        setIsCompleted(true);
-      } else if (typeof lastStep === 'number') {
-        setCurrentStep(lastStep);
-      }
-    } catch {
-      // ignore corrupt storage
+    const saved = loadOnboardingState();
+    if (!saved) return;
+    if (saved.completed) {
+      setIsCompleted(true);
+    } else if (typeof saved.lastStep === 'number') {
+      setCurrentStep(saved.lastStep);
     }
   }, []);
 
   function persist(step: number, completed = false) {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ lastStep: step, completed, timestamp: Date.now() }),
-      );
-    } catch {
-      // ignore storage errors
-    }
+    saveOnboardingState({ lastStep: step, completed, timestamp: Date.now() });
   }
 
   function handleNext() {
@@ -92,6 +74,20 @@ export function useOnboardingFlow({
     onSkip?.();
   }
 
+  // Per-step "Skip for Now" / "Decide Later": advance past the current step
+  // without completing the whole flow. Only the final step ends onboarding.
+  function handleStepSkip() {
+    if (currentStep < totalSteps - 1) {
+      const next = currentStep + 1;
+      setCurrentStep(next);
+      persist(next);
+    } else {
+      setIsCompleted(true);
+      persist(currentStep, true);
+      onComplete?.();
+    }
+  }
+
   function handleStepClick(stepIndex: number) {
     if (stepIndex <= currentStep + 1) {
       setCurrentStep(stepIndex);
@@ -111,6 +107,7 @@ export function useOnboardingFlow({
     handleNext,
     handleBack,
     handleSkip,
+    handleStepSkip,
     handleStepClick,
     resetFlow,
   };

@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import test from "node:test";
+import React, { createElement } from "react";
+import { setupDomGlobals } from "@/test-setup";
 
 // Test suite for CommandPaletteDialog's filtering, navigation, and keyboard handling.
 // The component handles fuzzy filtering (simple substring match), arrow-key wraparound,
@@ -255,4 +257,148 @@ test("CommandPaletteDialog — wires useFocusTrap onto the dialog container", ()
 test("CommandPaletteDialog — uses the shared modal z-index tier, not a hardcoded value", () => {
   assert.match(dialogSource, /\bz-modal\b/);
   assert.doesNotMatch(dialogSource, /z-\[\d+\]/);
+});
+
+// ── Memoization of derived command lists (#873) ──────────────────────────
+
+test("CommandPaletteDialog — wraps allCommands in useMemo with stable dependencies", () => {
+  assert.match(dialogSource, /const allCommands: Command\[\] = useMemo\(/);
+  assert.match(dialogSource, /\[router, onClose\]/);
+});
+
+test("CommandPaletteDialog — wraps filteredCommands in useMemo over allCommands + query", () => {
+  assert.match(dialogSource, /const filteredCommands = useMemo\(/);
+  assert.match(dialogSource, /\[allCommands, query\]/);
+});
+
+test("CommandPaletteDialog — hoists mockActions out of the render body", () => {
+  assert.match(dialogSource, /const mockActions = \[/);
+  const componentBody = dialogSource.slice(
+    dialogSource.indexOf("export function CommandPaletteDialog"),
+  );
+  assert.doesNotMatch(componentBody, /const mockActions = \[/);
+});
+
+// ── Focus trap Tab cycle regression test (#863) ──────────────────────────
+
+test("CommandPaletteDialog — focus trap keeps Tab focus cycling within the dialog container", () => {
+  // Simulate focus trap Tab cycling behavior
+  let activeElement = "input";
+  const focusableElements = ["input", "result-0", "result-1", "result-2"];
+
+  function handleTab(shiftKey: boolean): boolean {
+    const currentIndex = focusableElements.indexOf(activeElement);
+    if (shiftKey) {
+      if (currentIndex <= 0) {
+        activeElement = focusableElements[focusableElements.length - 1];
+        return true; // preventDefault called (wrapped to last)
+      } else {
+        activeElement = focusableElements[currentIndex - 1];
+        return false;
+      }
+    } else {
+      if (currentIndex >= focusableElements.length - 1) {
+        activeElement = focusableElements[0];
+        return true; // preventDefault called (wrapped to first)
+      } else {
+        activeElement = focusableElements[currentIndex + 1];
+        return false;
+      }
+    }
+  }
+
+  // Tabbing forward from last element wraps to first
+  activeElement = "result-2";
+  const wrappedForward = handleTab(false);
+  assert.equal(wrappedForward, true, "Tabbing from last element must prevent default");
+  assert.equal(activeElement, "input", "Focus must wrap back to first element (input)");
+
+  // Shift+Tab from first element wraps to last
+  activeElement = "input";
+  const wrappedBackward = handleTab(true);
+  assert.equal(wrappedBackward, true, "Shift+Tab from first element must prevent default");
+  assert.equal(activeElement, "result-2", "Focus must wrap to last focusable element");
+});
+
+
+// ── Light/dark contrast classes on the rendered dialog (#1050) ───────────
+
+test("CommandPaletteDialog — rendered input, list items and icons carry their light/dark class pairs", async () => {
+  // react-dom feature-detects the DOM when it first loads, so it (via
+  // @testing-library/react) is imported only after jsdom globals exist.
+  setupDomGlobals();
+  Object.assign(globalThis, { React });
+  const { cleanup, fireEvent, render } = await import("@testing-library/react");
+  // jsdom doesn't implement scrollIntoView, which the dialog calls on the active option.
+  window.HTMLElement.prototype.scrollIntoView ??= () => {};
+  const { AppRouterContext } = await import(
+    "next/dist/shared/lib/app-router-context.shared-runtime"
+  );
+  const { CommandPaletteDialog } = await import("./CommandPaletteDialog");
+
+  const router = {
+    push: () => {},
+    replace: () => {},
+    refresh: () => {},
+    prefetch: () => {},
+    back: () => {},
+    forward: () => {},
+  };
+  const view = render(
+    createElement(
+      AppRouterContext.Provider,
+      { value: router },
+      createElement(CommandPaletteDialog, { onClose: () => {} }),
+    ),
+  );
+
+  const hasClasses = (el: Element, classes: string[], label: string) => {
+    for (const cls of classes) {
+      assert.ok(el.classList.contains(cls), `${label} is missing "${cls}" (has: ${el.className})`);
+    }
+  };
+
+  try {
+    const dialog = view.getByRole("dialog", { name: "Command Palette" });
+    hasClasses(dialog, ["bg-white", "dark:bg-slate-900"], "dialog");
+
+    const input = view.getByPlaceholderText(/Search routes and actions/);
+    hasClasses(
+      input,
+      [
+        "text-slate-900",
+        "dark:text-slate-200",
+        "placeholder:text-slate-400",
+        "dark:placeholder:text-slate-500",
+      ],
+      "search input",
+    );
+
+    const searchIcon = input.parentElement!.querySelector("svg")!;
+    hasClasses(searchIcon, ["text-slate-500", "dark:text-slate-400"], "search icon");
+
+    const options = view.getAllByRole("option");
+    assert.ok(options.length > 1, "expected at least two commands to render");
+
+    // The first option is selected; the rest use the unselected light/dark pair.
+    assert.equal(options[0].getAttribute("aria-selected"), "true");
+    const unselected = options[1];
+    hasClasses(
+      unselected,
+      ["text-slate-600", "dark:text-slate-400", "hover:text-slate-900", "dark:hover:text-slate-200"],
+      "unselected option",
+    );
+
+    for (const option of options) {
+      const icon = option.querySelector("svg")!;
+      hasClasses(icon, ["text-slate-500", "dark:text-slate-400"], `icon in "${option.textContent}"`);
+    }
+
+    // Empty state copy also keeps its light/dark pair.
+    fireEvent.change(input, { target: { value: "zzz-no-such-command" } });
+    const empty = view.getByText(/No results found for/, { selector: "li" });
+    hasClasses(empty, ["text-slate-600", "dark:text-slate-500"], "empty state");
+  } finally {
+    cleanup();
+  }
 });

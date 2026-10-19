@@ -76,9 +76,16 @@ src/
 │   ├── dashboard/         # Protected dashboard shell and sub-routes
 │   │   ├── dev-errors/    # Dev-only error trigger routes (hidden in production)
 │   │   ├── portfolio/
+│   │   ├── async-states/
+│   │   ├── audit/
 │   │   ├── activity/
+│   │   ├── help/
+│   │   ├── history/
+│   │   ├── notifications/
+│   │   ├── sandbox/
 │   │   ├── strategy/
-│   │   └── settings/
+│   │   ├── settings/
+│   │   └── transactions/
 │   ├── demo/              # Dev-only demo pages and UI probes
 │   ├── docs/              # Reference docs pages and examples
 │   ├── login/             # Login entry flow and redirect handling
@@ -88,13 +95,15 @@ src/
 │   ├── profile/           # Account and profile pages
 │   ├── settings/          # Top-level settings shell and pages
 │   └── error.tsx          # Global 500 / uncaught error boundary
-├── components/            # Shared UI components (ui/, dashboard/, auth/, layout/)
+├── components/            # Shared UI components (ui/, dashboard/, auth/)
+├── contexts/              # React context providers shared across the app
 ├── features/              # Feature-scoped logic co-located with its UI
 ├── hooks/                 # Reusable React hooks
 ├── lib/                   # Pure utilities, constants, and adapters
 │   ├── mock-auth.ts       # Client-side mock auth session
 │   ├── auth-constants.ts  # Canonical storage/cookie key names
 │   └── …
+├── test-utils/            # Shared test helpers, custom renders, and fixtures
 └── types/                 # Shared TypeScript types and interfaces
 ```
 

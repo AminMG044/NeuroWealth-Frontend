@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Settings } from "lucide-react";
 import { commandPaletteRoutes } from "@/lib/routeMetadata";
@@ -18,6 +18,19 @@ interface CommandPaletteDialogProps {
   onClose: () => void;
 }
 
+const mockActions = [
+  {
+    id: "action-logout",
+    name: "Mock: Logout",
+    action: () => alert("Logged Out"),
+  },
+  {
+    id: "action-theme",
+    name: "Mock: Toggle Theme",
+    action: () => alert("Theme Toggled"),
+  },
+];
+
 /**
  * The command palette UI. Loaded lazily by `CommandPalette` only after the
  * palette is first opened, so its routes/icons/markup stay out of the initial
@@ -34,39 +47,33 @@ export function CommandPaletteDialog({ onClose }: CommandPaletteDialogProps) {
   // Always mounted open (the parent owns open/close), so the trap is always active.
   useFocusTrap(containerRef, true);
 
-  const mockActions = [
-    {
-      id: "action-logout",
-      name: "Mock: Logout",
-      action: () => alert("Logged Out"),
-    },
-    {
-      id: "action-theme",
-      name: "Mock: Toggle Theme",
-      action: () => alert("Theme Toggled"),
-    },
-  ];
+  const allCommands: Command[] = useMemo(
+    () => [
+      ...commandPaletteRoutes.map((route) => ({
+        ...route,
+        action: () => {
+          router.push(route.path);
+          onClose();
+        },
+      })),
+      ...mockActions.map((action) => ({
+        ...action,
+        icon: Settings,
+        action: () => {
+          action.action();
+          onClose();
+        },
+      })),
+    ],
+    [router, onClose],
+  );
 
-  const allCommands: Command[] = [
-    ...commandPaletteRoutes.map((route) => ({
-      ...route,
-      action: () => {
-        router.push(route.path);
-        onClose();
-      },
-    })),
-    ...mockActions.map((action) => ({
-      ...action,
-      icon: Settings,
-      action: () => {
-        action.action();
-        onClose();
-      },
-    })),
-  ];
-
-  const filteredCommands = allCommands.filter((command) =>
-    command.name.toLowerCase().includes(query.toLowerCase()),
+  const filteredCommands = useMemo(
+    () =>
+      allCommands.filter((command) =>
+        command.name.toLowerCase().includes(query.toLowerCase()),
+      ),
+    [allCommands, query],
   );
 
   useEffect(() => {
@@ -146,15 +153,15 @@ export function CommandPaletteDialog({ onClose }: CommandPaletteDialogProps) {
         role="dialog"
         aria-modal="true"
         aria-label="Command Palette"
-        className="relative w-full max-w-full overflow-hidden border border-slate-800 bg-white dark:bg-slate-900 shadow-2xl animate-in fade-in zoom-in-95 duration-200 motion-reduce:animate-none motion-reduce:duration-0 motion-reduce:transform-none sm:max-w-[640px] sm:rounded-xl"
+        className="relative w-full max-w-full overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl animate-in fade-in zoom-in-95 duration-200 motion-reduce:animate-none motion-reduce:duration-0 motion-reduce:transform-none sm:max-w-[640px] sm:rounded-xl"
       >
-        <div className="flex min-h-[56px] items-center border-b border-slate-800 px-4">
-          <Search className="mr-3 h-5 w-5 shrink-0 text-slate-400" />
+        <div className="flex min-h-[56px] items-center border-b border-slate-200 dark:border-slate-800 px-4">
+          <Search className="mr-3 h-5 w-5 shrink-0 text-slate-500 dark:text-slate-400" />
           <input
             ref={inputRef}
             type="text"
             placeholder="Search routes and actions... (Cmd+K)"
-            className="flex-1 border-none bg-transparent pt-[1px] text-slate-200 outline-none placeholder:text-slate-500"
+            className="flex-1 border-none bg-transparent pt-[1px] text-slate-900 dark:text-slate-200 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -175,7 +182,7 @@ export function CommandPaletteDialog({ onClose }: CommandPaletteDialogProps) {
           className="max-h-[300px] overflow-y-auto p-2 sm:max-h-[400px]"
         >
           {filteredCommands.length === 0 && (
-            <li className="p-4 text-center text-sm text-slate-500">
+            <li className="p-4 text-center text-sm text-slate-600 dark:text-slate-500">
               No results found for &quot;{query}&quot;
             </li>
           )}
@@ -190,13 +197,13 @@ export function CommandPaletteDialog({ onClose }: CommandPaletteDialogProps) {
                 className={cn(
                   "flex min-h-[44px] cursor-pointer items-center rounded-md px-4 py-2 text-sm transition-colors motion-reduce:transition-none",
                   isSelected
-                    ? "bg-slate-800 text-sky-400"
-                    : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
+                    ? "bg-slate-100 text-sky-600 dark:bg-slate-800 dark:text-sky-400"
+                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-slate-200",
                 )}
                 onClick={() => command.action()}
                 onMouseEnter={() => setSelectedIndex(index)}
               >
-                <command.icon className="mr-3 h-4 w-4 shrink-0" />
+                <command.icon className="mr-3 h-4 w-4 shrink-0 text-slate-500 dark:text-slate-400" />
                 <span>{command.name}</span>
               </li>
             );
