@@ -235,7 +235,7 @@ export default function SecurityPage() {
       )}
 
       {editing && (
-        <div className={styles.settingsActionBar} role="group" aria-label="Save or cancel changes">
+        <div className={styles.settingsActionBar} role="group" aria-label={t.actions.groupLabel}>
           {isDirty && <span className={styles.settingsDirtyIndicator}>{t.actions.unsaved}</span>}
           <div className={styles.settingsActions}>
             <Button onClick={handleCancel} variant="ghost" size="md" disabled={saving}>

@@ -236,6 +236,7 @@ export interface AppMessages {
         currencyLabel: string;
       };
       actions: {
+        groupLabel: string;
         edit: string;
         unsaved: string;
         cancel: string;
@@ -330,6 +331,7 @@ export interface AppMessages {
         disabledHint: string;
       };
       actions: {
+        groupLabel: string;
         edit: string;
         unsaved: string;
         cancel: string;
@@ -1244,6 +1246,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           currencyLabel: "Currency Format",
         },
         actions: {
+          groupLabel: "Save or cancel changes",
           edit: "Edit Preferences",
           unsaved: "Unsaved changes",
           cancel: "Cancel",
@@ -1338,6 +1341,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           disabledHint: "You won't be notified of new sign-ins.",
         },
         actions: {
+          groupLabel: "Save or cancel changes",
           edit: "Edit Security Settings",
           unsaved: "Unsaved changes",
           cancel: "Cancel",
@@ -2453,6 +2457,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           currencyLabel: "Format de devise",
         },
         actions: {
+          groupLabel: "Enregistrer ou annuler les modifications",
           edit: "Modifier les préférences",
           unsaved: "Modifications non enregistrées",
           cancel: "Annuler",
@@ -2547,6 +2552,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           disabledHint: "Vous ne serez pas averti des nouvelles connexions.",
         },
         actions: {
+          groupLabel: "Enregistrer ou annuler les modifications",
           edit: "Modifier les paramètres de sécurité",
           unsaved: "Modifications non enregistrées",
           cancel: "Annuler",
