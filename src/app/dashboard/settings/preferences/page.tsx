@@ -290,7 +290,7 @@ export default function PreferencesPage() {
         <div
           className={styles.settingsActionBar}
           role="group"
-          aria-label="Save or cancel changes"
+          aria-label={t.actions.groupLabel}
         >
           {isDirty && (
             <span className={styles.settingsDirtyIndicator}>
