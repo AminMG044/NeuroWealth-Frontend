@@ -236,6 +236,7 @@ export interface AppMessages {
         currencyLabel: string;
       };
       actions: {
+        groupLabel: string;
         edit: string;
         unsaved: string;
         cancel: string;
@@ -330,6 +331,7 @@ export interface AppMessages {
         disabledHint: string;
       };
       actions: {
+        groupLabel: string;
         edit: string;
         unsaved: string;
         cancel: string;
@@ -545,7 +547,6 @@ export interface AppMessages {
       loadingLabel: string;
       loadingText: string;
     };
-  };
     domain: {
       context: {
         withdrawFunds: string;
@@ -623,6 +624,7 @@ export interface AppMessages {
         actionReview: string;
       };
     };
+  };
   audit: {
     title: string;
     subtitle: string;
@@ -842,6 +844,8 @@ export interface AppMessages {
         albedo: string;
         ledger: string;
       };
+      errorConnectionFailed: string;
+      errorGeneric: string;
     };
     firstDeposit: {
       title: string;
@@ -861,6 +865,8 @@ export interface AppMessages {
       errorInvalidAmount: string;
       errorInsufficientBalance: string;
       errorMinDeposit: string;
+      errorTransactionFailed: string;
+      errorGeneric: string;
     };
   };
   notificationPreferences: {
@@ -879,10 +885,17 @@ export interface AppMessages {
     clearAriaLabel: string;
     searching: string;
     errorTitle: string;
+    errorMessage: string;
     errorRetry: string;
     errorOr: string;
     noMatchesTitle: string;
     noMatchesHint: string;
+    liveRegion: {
+      errorPrefix: string;
+      noResults: string;
+      resultsAvailable: string;
+      resultsAvailableSingular: string;
+    };
     groups: {
       Pages: string;
       Actions: string;
@@ -1240,6 +1253,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           currencyLabel: "Currency Format",
         },
         actions: {
+          groupLabel: "Save or cancel changes",
           edit: "Edit Preferences",
           unsaved: "Unsaved changes",
           cancel: "Cancel",
@@ -1334,6 +1348,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           disabledHint: "You won't be notified of new sign-ins.",
         },
         actions: {
+          groupLabel: "Save or cancel changes",
           edit: "Edit Security Settings",
           unsaved: "Unsaved changes",
           cancel: "Cancel",
@@ -1563,6 +1578,84 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         loadError: "Unable to load transaction history.",
         loadingLabel: "Loading transactions",
         loadingText: "Loading transaction history…",
+      },
+
+      domain: {
+        context: {
+          withdrawFunds: "Withdraw funds",
+          withdrawIntro: "Move settled capital out of NeuroWealth with clear validation and a traceable receipt.",
+          reviewWithdrawal: "Review withdrawal",
+          confirmWithdrawal: "Confirm withdrawal",
+          withdrawalAmount: "Withdrawal amount",
+          withdrawHint: "Minimum withdrawal is 10 USDC. Amounts above 10,000 USDC may require an extra treasury check.",
+          destinationWallet: "Destination wallet",
+          destinationHint: "Enter a Stellar public address that starts with G. We validate before confirmation.",
+          vaultReady: "Vault account ready",
+          sameDay: "Same-day settlement",
+          treasuryReview: "Treasury review may apply",
+          addCapital: "Add capital",
+          depositIntro: "Deposit USDC from your connected wallet and confirm the amount, fees, and request reference before submission.",
+          reviewDeposit: "Review deposit",
+          confirmDeposit: "Confirm deposit",
+          depositAmount: "Deposit amount",
+          depositHint: "Minimum deposit is 10 USDC. Stellar network fees stay separate from the credited deposit amount.",
+          fundingWallet: "Funding wallet",
+          fundingHint: "Use the connected Freighter wallet for the funding step. Disconnecting blocks submission until you reconnect.",
+          freighterConnected: "Freighter connected",
+          usuallyCompletes: "Usually completes in under 20 seconds",
+          networkFee: "Network fee shown at confirmation",
+        },
+        validation: {
+          connectFunding: "Connect a funding wallet before submitting a deposit.",
+          reconnectVault: "Reconnect your vault wallet before withdrawing funds.",
+          enterAmount: "Enter an amount to continue.",
+          validAmount: "Enter a valid amount greater than 0.",
+          minDeposit: (min: number) => `Minimum deposit amount is ${min} USDC.`,
+          minWithdrawal: (min: number) => `Minimum withdrawal amount is ${min} USDC.`,
+          fundingAvailable: (amt: string) => `Funding wallet only has ${amt} USDC available.`,
+          withdrawAvailable: (amt: string) => `Available to withdraw is ${amt} USDC.`,
+          enterDestination: "Enter a destination wallet address.",
+          validStellarAddress: "Use a valid Stellar public address that starts with G.",
+        },
+        pending: {
+          statusLabel: "Pending on Stellar",
+          submittingDeposit: "Submitting your deposit and waiting for network confirmation.",
+          submittingWithdrawal: "Submitting your withdrawal and waiting for liquidity settlement.",
+          feeExpired: "Network fee estimate expired before submission. Refresh the quote and try again.",
+          liquidityChanged: "Treasury liquidity changed mid-flight. Retry after reviewing the updated amount.",
+        },
+        receipt: {
+          depositConfirmed: "Deposit confirmed and added to your active strategy.",
+          withdrawalConfirmed: "Withdrawal confirmed and ready for your destination wallet.",
+          failed: "Transaction failed before final settlement.",
+          explorerAvailable: "Explorer reference available after backend wiring",
+        },
+        statusChips: {
+          walletRequired: "Wallet required",
+          depositCapacity: (amt: string) => `Deposit capacity ${amt}`,
+          withdrawalCapacity: (amt: string) => `Available ${amt}`,
+        },
+        recovery: {
+          networkErrorTitle: "Connection lost",
+          networkErrorDesc: "Your connection to the service was interrupted. Please check your network and try again, or contact support if the problem persists.",
+          timeoutTitle: "Request timed out",
+          timeoutDesc: "The server took too long to respond. Your amount and wallet settings are still saved. Retry the request or adjust your amount and try again.",
+          serverErrorTitle: "Service experiencing issues",
+          serverErrorDesc: "Service is temporarily unavailable or experiencing issues. Your details are saved. Try again in a few moments, or contact support for assistance.",
+          validationErrorTitle: "Validation failed",
+          validationErrorDesc: "The amount or wallet details didn't pass validation. Review your entries and make corrections before retrying.",
+          quotaErrorTitle: "Amount exceeds limit",
+          quotaErrorDesc: "The amount exceeds your available balance or transaction limit. Adjust the amount to a lower value and try again.",
+          stateConflictTitle: "Account state changed",
+          stateConflictDesc: "Your account balance, wallet, or transaction status changed. Review your current balance and wallet settings, then retry.",
+          unknownErrorTitle: "Something went wrong",
+          unknownErrorDesc: "An unexpected error occurred while processing your transaction. Your details are saved. Please try again or contact support for help.",
+          actionRetry: "Retry request",
+          actionEdit: "Edit details",
+          actionSupport: "Contact support",
+          actionBack: "Go back",
+          actionReview: "Review and retry",
+        },
       },
     },
     audit: {
@@ -1974,6 +2067,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           albedo: "Secure web-based wallet",
           ledger: "Hardware wallet for maximum security",
         },
+        errorConnectionFailed: "Connection failed. Please try again.",
+        errorGeneric: "Connection failed",
       },
       firstDeposit: {
         title: "Make Your First Deposit",
@@ -1993,6 +2088,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         errorInvalidAmount: "Please enter a valid amount",
         errorInsufficientBalance: "Insufficient balance",
         errorMinDeposit: "Minimum deposit is 10",
+        errorTransactionFailed: "Transaction failed. Please try again.",
+        errorGeneric: "Deposit failed",
       },
     },
     notificationPreferences: {
@@ -2011,10 +2108,17 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       clearAriaLabel: "Clear search",
       searching: "Searching index...",
       errorTitle: "Search unavailable",
+      errorMessage: "Search is temporarily unavailable. Please try again.",
       errorRetry: "Retry",
       errorOr: "Or try a different query.",
       noMatchesTitle: "No matches",
       noMatchesHint: "Try a different route name, action verb, or record ID.",
+      liveRegion: {
+        errorPrefix: "Search error:",
+        noResults: "No results found for",
+        resultsAvailable: "search results available. Use arrow keys to navigate.",
+        resultsAvailableSingular: "search result available. Use arrow keys to navigate.",
+      },
       groups: {
         Pages: "Pages",
         Actions: "Actions",
@@ -2367,6 +2471,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           currencyLabel: "Format de devise",
         },
         actions: {
+          groupLabel: "Enregistrer ou annuler les modifications",
           edit: "Modifier les préférences",
           unsaved: "Modifications non enregistrées",
           cancel: "Annuler",
@@ -2461,6 +2566,7 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           disabledHint: "Vous ne serez pas averti des nouvelles connexions.",
         },
         actions: {
+          groupLabel: "Enregistrer ou annuler les modifications",
           edit: "Modifier les paramètres de sécurité",
           unsaved: "Modifications non enregistrées",
           cancel: "Annuler",
@@ -2690,6 +2796,84 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         loadError: "Impossible de charger l'historique des transactions.",
         loadingLabel: "Chargement des transactions",
         loadingText: "Chargement de l'historique des transactions…",
+      },
+
+      domain: {
+        context: {
+          withdrawFunds: "Withdraw funds",
+          withdrawIntro: "Move settled capital out of NeuroWealth with clear validation and a traceable receipt.",
+          reviewWithdrawal: "Review withdrawal",
+          confirmWithdrawal: "Confirm withdrawal",
+          withdrawalAmount: "Withdrawal amount",
+          withdrawHint: "Minimum withdrawal is 10 USDC. Amounts above 10,000 USDC may require an extra treasury check.",
+          destinationWallet: "Destination wallet",
+          destinationHint: "Enter a Stellar public address that starts with G. We validate before confirmation.",
+          vaultReady: "Vault account ready",
+          sameDay: "Same-day settlement",
+          treasuryReview: "Treasury review may apply",
+          addCapital: "Add capital",
+          depositIntro: "Deposit USDC from your connected wallet and confirm the amount, fees, and request reference before submission.",
+          reviewDeposit: "Review deposit",
+          confirmDeposit: "Confirm deposit",
+          depositAmount: "Deposit amount",
+          depositHint: "Minimum deposit is 10 USDC. Stellar network fees stay separate from the credited deposit amount.",
+          fundingWallet: "Funding wallet",
+          fundingHint: "Use the connected Freighter wallet for the funding step. Disconnecting blocks submission until you reconnect.",
+          freighterConnected: "Freighter connected",
+          usuallyCompletes: "Usually completes in under 20 seconds",
+          networkFee: "Network fee shown at confirmation",
+        },
+        validation: {
+          connectFunding: "Connect a funding wallet before submitting a deposit.",
+          reconnectVault: "Reconnect your vault wallet before withdrawing funds.",
+          enterAmount: "Enter an amount to continue.",
+          validAmount: "Enter a valid amount greater than 0.",
+          minDeposit: (min: number) => `Minimum deposit amount is ${min} USDC.`,
+          minWithdrawal: (min: number) => `Minimum withdrawal amount is ${min} USDC.`,
+          fundingAvailable: (amt: string) => `Funding wallet only has ${amt} USDC available.`,
+          withdrawAvailable: (amt: string) => `Available to withdraw is ${amt} USDC.`,
+          enterDestination: "Enter a destination wallet address.",
+          validStellarAddress: "Use a valid Stellar public address that starts with G.",
+        },
+        pending: {
+          statusLabel: "Pending on Stellar",
+          submittingDeposit: "Submitting your deposit and waiting for network confirmation.",
+          submittingWithdrawal: "Submitting your withdrawal and waiting for liquidity settlement.",
+          feeExpired: "Network fee estimate expired before submission. Refresh the quote and try again.",
+          liquidityChanged: "Treasury liquidity changed mid-flight. Retry after reviewing the updated amount.",
+        },
+        receipt: {
+          depositConfirmed: "Deposit confirmed and added to your active strategy.",
+          withdrawalConfirmed: "Withdrawal confirmed and ready for your destination wallet.",
+          failed: "Transaction failed before final settlement.",
+          explorerAvailable: "Explorer reference available after backend wiring",
+        },
+        statusChips: {
+          walletRequired: "Wallet required",
+          depositCapacity: (amt: string) => `Deposit capacity ${amt}`,
+          withdrawalCapacity: (amt: string) => `Available ${amt}`,
+        },
+        recovery: {
+          networkErrorTitle: "Connection lost",
+          networkErrorDesc: "Your connection to the service was interrupted. Please check your network and try again, or contact support if the problem persists.",
+          timeoutTitle: "Request timed out",
+          timeoutDesc: "The server took too long to respond. Your amount and wallet settings are still saved. Retry the request or adjust your amount and try again.",
+          serverErrorTitle: "Service experiencing issues",
+          serverErrorDesc: "Service is temporarily unavailable or experiencing issues. Your details are saved. Try again in a few moments, or contact support for assistance.",
+          validationErrorTitle: "Validation failed",
+          validationErrorDesc: "The amount or wallet details didn't pass validation. Review your entries and make corrections before retrying.",
+          quotaErrorTitle: "Amount exceeds limit",
+          quotaErrorDesc: "The amount exceeds your available balance or transaction limit. Adjust the amount to a lower value and try again.",
+          stateConflictTitle: "Account state changed",
+          stateConflictDesc: "Your account balance, wallet, or transaction status changed. Review your current balance and wallet settings, then retry.",
+          unknownErrorTitle: "Something went wrong",
+          unknownErrorDesc: "An unexpected error occurred while processing your transaction. Your details are saved. Please try again or contact support for help.",
+          actionRetry: "Retry request",
+          actionEdit: "Edit details",
+          actionSupport: "Contact support",
+          actionBack: "Go back",
+          actionReview: "Review and retry",
+        },
       },
     },
     audit: {
@@ -3101,6 +3285,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           albedo: "Wallet web sécurisé",
           ledger: "Wallet matériel pour une sécurité maximale",
         },
+        errorConnectionFailed: "Échec de la connexion. Veuillez réessayer.",
+        errorGeneric: "Échec de la connexion",
       },
       firstDeposit: {
         title: "Effectuer votre premier dépôt",
@@ -3120,6 +3306,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         errorInvalidAmount: "Veuillez saisir un montant valide",
         errorInsufficientBalance: "Solde insuffisant",
         errorMinDeposit: "Le dépôt minimum est de 10",
+        errorTransactionFailed: "Échec de la transaction. Veuillez réessayer.",
+        errorGeneric: "Échec du dépôt",
       },
     },
     notificationPreferences: {
@@ -3138,10 +3326,17 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       clearAriaLabel: "Effacer la recherche",
       searching: "Recherche en cours...",
       errorTitle: "Recherche indisponible",
+      errorMessage: "La recherche est temporairement indisponible. Veuillez réessayer.",
       errorRetry: "Réessayer",
       errorOr: "Ou essayez une autre requête.",
       noMatchesTitle: "Aucun résultat",
       noMatchesHint: "Essayez un autre nom de page, un verbe d'action ou un identifiant d'enregistrement.",
+      liveRegion: {
+        errorPrefix: "Erreur de recherche :",
+        noResults: "Aucun résultat trouvé pour",
+        resultsAvailable: "résultats disponibles. Utilisez les flèches pour naviguer.",
+        resultsAvailableSingular: "résultat disponible. Utilisez les flèches pour naviguer.",
+      },
       groups: {
         Pages: "Pages",
         Actions: "Actions",

@@ -2,7 +2,7 @@ import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { renderHook, act } from "@/test-utils/render-hook";
 import { STORAGE_KEYS } from "@/lib/storage-keys";
-import { saveOnboardingState } from "@/lib/onboarding-state";
+import { loadOnboardingState, saveOnboardingState } from "@/lib/onboarding-state";
 import { useOnboardingFlow } from "./useOnboardingFlow";
 
 // #953 — a per-step "Skip for Now" / "Decide Later" must advance the flow
@@ -10,9 +10,11 @@ import { useOnboardingFlow } from "./useOnboardingFlow";
 
 const STORAGE_KEY = STORAGE_KEYS.ONBOARDING_STATE;
 
-function readPersisted(): { lastStep?: number; completed?: boolean } | null {
+function readPersisted(): { lastStep?: number; completed?: boolean; timestamp?: number } | null {
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as { lastStep?: number; completed?: boolean }) : null;
+  return raw
+    ? (JSON.parse(raw) as { lastStep?: number; completed?: boolean; timestamp?: number })
+    : null;
 }
 
 describe("useOnboardingFlow handleStepSkip", () => {
@@ -144,5 +146,37 @@ describe("useOnboardingFlow persistence", () => {
 
     assert.equal(result.current.currentStep, 0);
     assert.equal(result.current.isCompleted, false);
+  });
+
+  // #1054 — values written by the flow hook must round-trip through the shared adapter.
+  it("reads back via loadOnboardingState the same shape saved by useOnboardingFlow", () => {
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 3 }));
+
+    act(() => {
+      result.current.handleNext();
+    });
+
+    const loaded = loadOnboardingState();
+    const raw = readPersisted();
+
+    assert.ok(loaded);
+    assert.ok(raw);
+    assert.deepEqual(loaded, raw);
+    assert.equal(loaded.completed, false);
+    assert.equal(loaded.lastStep, 1);
+    assert.equal(typeof loaded.timestamp, "number");
+  });
+
+  it("handleStepSkip shares handleNext's persistence path", () => {
+    const { result } = renderHook(() => useOnboardingFlow({ totalSteps: 3 }));
+
+    act(() => {
+      result.current.handleStepSkip();
+    });
+
+    const loaded = loadOnboardingState();
+    assert.equal(loaded?.lastStep, 1);
+    assert.equal(loaded?.completed, false);
+    assert.equal(result.current.currentStep, 1);
   });
 });

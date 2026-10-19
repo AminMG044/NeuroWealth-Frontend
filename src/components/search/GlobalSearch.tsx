@@ -14,6 +14,7 @@ import {
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useI18n } from "@/contexts/I18nContext";
+import type { AppMessages } from "@/lib/i18n/messages";
 
 interface GlobalSearchProps {
   placeholder?: string;
@@ -53,12 +54,13 @@ export function resolveLiveRegionMessage(
   hasCommittedQuery: boolean,
   hasResults: boolean,
   debouncedQuery: string,
-  numResults: number
+  numResults: number,
+  t: AppMessages['globalSearch']
 ): string {
   if (isLoading) return "";
-  if (errorMessage) return `Search error: ${errorMessage}`;
-  if (hasCommittedQuery && !hasResults) return `No results found for ${debouncedQuery}`;
-  if (hasResults) return `${numResults} search result${numResults !== 1 ? "s" : ""} available. Use arrow keys to navigate.`;
+  if (errorMessage) return `${t.liveRegion.errorPrefix} ${errorMessage}`;
+  if (hasCommittedQuery && !hasResults) return `${t.liveRegion.noResults} ${debouncedQuery}`;
+  if (hasResults) return `${numResults} ${numResults !== 1 ? t.liveRegion.resultsAvailable : t.liveRegion.resultsAvailableSingular}`;
   return "";
 }
 
@@ -159,7 +161,7 @@ export function GlobalSearch({
         if (tracker.isStale(requestId)) return;
         setResults(EMPTY_RESULTS);
         setActiveIndex(-1);
-        setErrorMessage("Search is temporarily unavailable. Please try again.");
+        setErrorMessage(t.errorMessage);
       })
       .finally(() => {
         if (!tracker.isStale(requestId)) {
@@ -302,7 +304,8 @@ export function GlobalSearch({
           hasCommittedQuery,
           hasResults,
           debouncedQuery,
-          flatResults.length
+          flatResults.length,
+          t
         )}
       </div>
 

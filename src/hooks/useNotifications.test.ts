@@ -24,7 +24,14 @@ describe("useNotifications", () => {
 
   it("retrieves notifications from localStorage if available", () => {
     const mockNotifications = [
-      { id: "1", title: "Test", isRead: false, message: "Test message", timestamp: new Date().toISOString() },
+      {
+        id: "1",
+        title: "Test",
+        isRead: false,
+        message: "Test message",
+        timestamp: new Date().toISOString(),
+        status: "info" as const,
+      },
     ];
     localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(mockNotifications));
 

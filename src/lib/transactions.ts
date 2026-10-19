@@ -380,7 +380,7 @@ export function validateTransactionValues(kind: TransactionKind, values: Transac
 }
 
 export function buildTransactionQuote(kind: TransactionKind, values: TransactionFormValues, tContext: any, reference = generateReference(kind)): TransactionQuote {
-  const context = getTransactionContext(kind, t.context);
+  const context = getTransactionContext(kind, tContext);
   const amount = roundCurrency(parseAmount(values.amount));
   const fee = NETWORK_FEE[kind];
   const totalDebit = roundCurrency(kind === "deposit" ? amount + fee : amount);
