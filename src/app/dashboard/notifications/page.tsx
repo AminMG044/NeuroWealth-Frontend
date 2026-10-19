@@ -169,7 +169,7 @@ function NotificationInbox() {
 
       <DataBoundary
         loading={simLoading}
-        error={simError}
+        error={simError ? new Error(simError.message) : null}
         onRetry={handleRetry}
         skeleton={<NotificationListSkeleton items={4} />}
         label="notifications"

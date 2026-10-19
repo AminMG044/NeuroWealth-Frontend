@@ -8,6 +8,9 @@ import {
   type ErrorMode,
   type TransactionRecoveryUI,
 } from "@/lib/transactions";
+import { dictionaries } from "@/lib/i18n/messages";
+
+const tRecovery = dictionaries.en.transactions.domain.recovery;
 
 test("mapErrorCodeToErrorMode maps NETWORK_ERROR", () => {
   const mode = mapErrorCodeToErrorMode("NETWORK_ERROR");
@@ -49,7 +52,7 @@ test("mapErrorCodeToErrorMode defaults unknown codes to unknown_error", () => {
 });
 
 test("getTransactionRecoveryUI returns network_error recovery with actionable copy", () => {
-  const recovery = getTransactionRecoveryUI("NETWORK_ERROR");
+  const recovery = getTransactionRecoveryUI("NETWORK_ERROR", tRecovery);
   
   assert.equal(recovery.title, "Connection lost");
   assert(recovery.description.includes("connection"));
@@ -63,16 +66,16 @@ test("getTransactionRecoveryUI returns network_error recovery with actionable co
 });
 
 test("getTransactionRecoveryUI returns timeout recovery with retry action", () => {
-  const recovery = getTransactionRecoveryUI("REQUEST_TIMEOUT");
+  const recovery = getTransactionRecoveryUI("REQUEST_TIMEOUT", tRecovery);
   
   assert.equal(recovery.title, "Request timed out");
   assert(recovery.description.includes("took too long"));
   assert.equal(recovery.primaryAction.action, "retry");
-  assert.equal(recovery.primaryAction.label, "Retry");
+  assert.equal(recovery.primaryAction.label, "Retry request");
 });
 
 test("getTransactionRecoveryUI returns validation_error recovery with edit action", () => {
-  const recovery = getTransactionRecoveryUI("VALIDATION_FAILED");
+  const recovery = getTransactionRecoveryUI("VALIDATION_FAILED", tRecovery);
   
   assert.equal(recovery.title, "Validation failed");
   assert(recovery.description.includes("validation"));
@@ -81,16 +84,16 @@ test("getTransactionRecoveryUI returns validation_error recovery with edit actio
 });
 
 test("getTransactionRecoveryUI returns quota_error recovery with edit action", () => {
-  const recovery = getTransactionRecoveryUI("INSUFFICIENT_BALANCE");
+  const recovery = getTransactionRecoveryUI("INSUFFICIENT_BALANCE", tRecovery);
   
   assert.equal(recovery.title, "Amount exceeds limit");
   assert(recovery.description.includes("available balance"));
   assert.equal(recovery.primaryAction.action, "edit");
-  assert.equal(recovery.primaryAction.label, "Edit amount");
+  assert.equal(recovery.primaryAction.label, "Edit details");
 });
 
 test("getTransactionRecoveryUI returns state_conflict recovery with retry action", () => {
-  const recovery = getTransactionRecoveryUI("STATE_CONFLICT");
+  const recovery = getTransactionRecoveryUI("STATE_CONFLICT", tRecovery);
   
   assert.equal(recovery.title, "Account state changed");
   assert(recovery.description.includes("balance"));
@@ -98,7 +101,7 @@ test("getTransactionRecoveryUI returns state_conflict recovery with retry action
 });
 
 test("getTransactionRecoveryUI returns server_error recovery with support action", () => {
-  const recovery = getTransactionRecoveryUI("SERVICE_UNAVAILABLE");
+  const recovery = getTransactionRecoveryUI("SERVICE_UNAVAILABLE", tRecovery);
   
   assert.equal(recovery.title, "Service experiencing issues");
   assert(recovery.description.includes("Service is temporarily unavailable"));
@@ -107,13 +110,13 @@ test("getTransactionRecoveryUI returns server_error recovery with support action
 
 test("getTransactionRecoveryUI includes transaction reference when provided", () => {
   const reference = "NW-DEP-20260426124530-ABC123";
-  const recovery = getTransactionRecoveryUI("REQUEST_TIMEOUT", reference);
+  const recovery = getTransactionRecoveryUI("REQUEST_TIMEOUT", tRecovery, reference);
   
   assert.equal(recovery.reference, reference);
 });
 
 test("getTransactionRecoveryUI handles error mode input directly", () => {
-  const recovery = getTransactionRecoveryUI("network_error");
+  const recovery = getTransactionRecoveryUI("network_error", tRecovery);
   
   assert.equal(recovery.title, "Connection lost");
   assert.equal(recovery.primaryAction.action, "retry");
@@ -130,14 +133,14 @@ test("getTransactionRecoveryUI all recovery UIs include support email", () => {
   ];
 
   errorModes.forEach((code) => {
-    const recovery = getTransactionRecoveryUI(code);
+    const recovery = getTransactionRecoveryUI(code, tRecovery);
     assert.ok(recovery.supportEmail, `Missing support email for ${code}`);
     assert(recovery.supportEmail.includes("@"), `Invalid email for ${code}`);
   });
 });
 
 test("getTransactionRecoveryUI unknown error returns sensible defaults", () => {
-  const recovery = getTransactionRecoveryUI("COMPLETELY_UNKNOWN_ERROR");
+  const recovery = getTransactionRecoveryUI("COMPLETELY_UNKNOWN_ERROR", tRecovery);
   
   assert.equal(recovery.title, "Something went wrong");
   assert(recovery.description.includes("unexpected error"));
@@ -157,7 +160,7 @@ test("getTransactionRecoveryUI all primary actions are one of retry, edit, suppo
   ];
 
   errorModes.forEach((code) => {
-    const recovery = getTransactionRecoveryUI(code);
+    const recovery = getTransactionRecoveryUI(code, tRecovery);
     const validActions = ["retry", "edit", "support"];
     assert(
       validActions.includes(recovery.primaryAction.action),
@@ -177,7 +180,7 @@ test("getTransactionRecoveryUI secondary and tertiary actions are optional or va
   ];
 
   errorModes.forEach((code) => {
-    const recovery = getTransactionRecoveryUI(code);
+    const recovery = getTransactionRecoveryUI(code, tRecovery);
     const validActions = ["retry", "edit", "support"];
 
     if (recovery.secondaryAction) {

@@ -74,18 +74,11 @@ export function useOnboardingFlow({
     onSkip?.();
   }
 
-  // Per-step "Skip for Now" / "Decide Later": advance past the current step
-  // without completing the whole flow. Only the final step ends onboarding.
+  // Per-step "Skip for Now" / "Decide Later": same advance/complete path as
+  // Next — kept as a named alias so the UI can wire the two actions separately
+  // without duplicating the step machine (#1052).
   function handleStepSkip() {
-    if (currentStep < totalSteps - 1) {
-      const next = currentStep + 1;
-      setCurrentStep(next);
-      persist(next);
-    } else {
-      setIsCompleted(true);
-      persist(currentStep, true);
-      onComplete?.();
-    }
+    handleNext();
   }
 
   function handleStepClick(stepIndex: number) {

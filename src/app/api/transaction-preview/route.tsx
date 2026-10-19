@@ -8,6 +8,9 @@ import {
 import { parseTransactionPreviewSearchParams } from "@/lib/preview-route-query";
 import { ImageResponse } from "next/og";
 import { checkRateLimit, getRateLimitKey } from "@/lib/rate-limit";
+import { dictionaries } from "@/lib/i18n/messages";
+
+const tDomain = dictionaries.en.transactions.domain;
 
 type ThemeMode = "light" | "dark";
 
@@ -64,9 +67,9 @@ export async function GET(request: Request) {
   const { theme, kind, preview } =
     parseTransactionPreviewSearchParams(searchParams);
   const palette = getThemePalette(theme);
-  const context = getTransactionContext(kind);
-  const snapshot = buildPreviewSnapshot(kind, preview);
-  const chips = buildStatusChips(kind, snapshot.form);
+  const context = getTransactionContext(kind, tDomain.context);
+  const snapshot = buildPreviewSnapshot(kind, preview, tDomain);
+  const chips = buildStatusChips(kind, snapshot.form, tDomain);
 
   const imageResponse = new ImageResponse(
     <div
