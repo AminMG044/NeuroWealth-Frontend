@@ -8,7 +8,7 @@ export function CookieBanner() {
 
   return (
     <div
-      role="dialog"
+      role="region"
       aria-label="Cookie consent"
       aria-live="polite"
       className="fixed bottom-0 left-0 right-0 z-overlay flex items-center justify-between gap-4 px-4 sm:px-6"
