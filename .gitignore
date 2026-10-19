@@ -68,3 +68,8 @@ pr.md
 # mimo / mimocode
 .mimocode/
 .mimo/
+
+# injection / helper scripts (not part of the app)
+inject_*.js
+inject_*.py
+fix_components.py
