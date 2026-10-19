@@ -85,13 +85,13 @@ export default function FirstDepositStep({ onNext, onSkip, onBack }: FirstDeposi
           isFirstDeposit: true
         };
         localStorage.setItem(STORAGE_KEYS.ONBOARDING_FIRST_DEPOSIT, JSON.stringify(depositRecord));
-        
+
         onNext();
       } else {
-        throw new Error('Transaction failed. Please try again.');
+        throw new Error(t.errorTransactionFailed);
       }
     } catch (error) {
-      setDepositError(error instanceof Error ? error.message : 'Deposit failed');
+      setDepositError(error instanceof Error ? error.message : t.errorGeneric);
     } finally {
       setIsDepositing(false);
     }

@@ -3,11 +3,8 @@
 import { useState } from 'react';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
 import { random } from '@/lib/seeded-rng';
-import { Spinner } from '@/components/ui/Spinner';
 import { useI18n } from '@/contexts/I18nContext';
-import { Spinner } from '@/components/ui/Spinner';
 
 interface WalletConnectStepProps {
   onNext: () => void;
@@ -58,10 +55,10 @@ export default function WalletConnectStep({ onNext, onSkip, onBack }: WalletConn
         // Connection successful
         onNext();
       } else {
-        throw new Error('Connection failed. Please try again.');
+        throw new Error(t.errorConnectionFailed);
       }
     } catch (error) {
-      setConnectionError(error instanceof Error ? error.message : 'Connection failed');
+      setConnectionError(error instanceof Error ? error.message : t.errorGeneric);
     } finally {
       setIsConnecting(false);
     }

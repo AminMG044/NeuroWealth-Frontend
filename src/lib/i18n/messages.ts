@@ -842,6 +842,8 @@ export interface AppMessages {
         albedo: string;
         ledger: string;
       };
+      errorConnectionFailed: string;
+      errorGeneric: string;
     };
     firstDeposit: {
       title: string;
@@ -861,6 +863,8 @@ export interface AppMessages {
       errorInvalidAmount: string;
       errorInsufficientBalance: string;
       errorMinDeposit: string;
+      errorTransactionFailed: string;
+      errorGeneric: string;
     };
   };
   notificationPreferences: {
@@ -879,10 +883,17 @@ export interface AppMessages {
     clearAriaLabel: string;
     searching: string;
     errorTitle: string;
+    errorMessage: string;
     errorRetry: string;
     errorOr: string;
     noMatchesTitle: string;
     noMatchesHint: string;
+    liveRegion: {
+      errorPrefix: string;
+      noResults: string;
+      resultsAvailable: string;
+      resultsAvailableSingular: string;
+    };
     groups: {
       Pages: string;
       Actions: string;
@@ -1967,6 +1978,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           albedo: "Secure web-based wallet",
           ledger: "Hardware wallet for maximum security",
         },
+        errorConnectionFailed: "Connection failed. Please try again.",
+        errorGeneric: "Connection failed",
       },
       firstDeposit: {
         title: "Make Your First Deposit",
@@ -1986,6 +1999,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         errorInvalidAmount: "Please enter a valid amount",
         errorInsufficientBalance: "Insufficient balance",
         errorMinDeposit: "Minimum deposit is 10",
+        errorTransactionFailed: "Transaction failed. Please try again.",
+        errorGeneric: "Deposit failed",
       },
     },
     notificationPreferences: {
@@ -2004,10 +2019,17 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       clearAriaLabel: "Clear search",
       searching: "Searching index...",
       errorTitle: "Search unavailable",
+      errorMessage: "Search is temporarily unavailable. Please try again.",
       errorRetry: "Retry",
       errorOr: "Or try a different query.",
       noMatchesTitle: "No matches",
       noMatchesHint: "Try a different route name, action verb, or record ID.",
+      liveRegion: {
+        errorPrefix: "Search error:",
+        noResults: "No results found for",
+        resultsAvailable: "search results available. Use arrow keys to navigate.",
+        resultsAvailableSingular: "search result available. Use arrow keys to navigate.",
+      },
       groups: {
         Pages: "Pages",
         Actions: "Actions",
@@ -3087,6 +3109,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
           albedo: "Wallet web sécurisé",
           ledger: "Wallet matériel pour une sécurité maximale",
         },
+        errorConnectionFailed: "Échec de la connexion. Veuillez réessayer.",
+        errorGeneric: "Échec de la connexion",
       },
       firstDeposit: {
         title: "Effectuer votre premier dépôt",
@@ -3106,6 +3130,8 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
         errorInvalidAmount: "Veuillez saisir un montant valide",
         errorInsufficientBalance: "Solde insuffisant",
         errorMinDeposit: "Le dépôt minimum est de 10",
+        errorTransactionFailed: "Échec de la transaction. Veuillez réessayer.",
+        errorGeneric: "Échec du dépôt",
       },
     },
     notificationPreferences: {
@@ -3124,10 +3150,17 @@ export const dictionaries: Record<AppLocale, AppMessages> = {
       clearAriaLabel: "Effacer la recherche",
       searching: "Recherche en cours...",
       errorTitle: "Recherche indisponible",
+      errorMessage: "La recherche est temporairement indisponible. Veuillez réessayer.",
       errorRetry: "Réessayer",
       errorOr: "Ou essayez une autre requête.",
       noMatchesTitle: "Aucun résultat",
       noMatchesHint: "Essayez un autre nom de page, un verbe d'action ou un identifiant d'enregistrement.",
+      liveRegion: {
+        errorPrefix: "Erreur de recherche :",
+        noResults: "Aucun résultat trouvé pour",
+        resultsAvailable: "résultats disponibles. Utilisez les flèches pour naviguer.",
+        resultsAvailableSingular: "résultat disponible. Utilisez les flèches pour naviguer.",
+      },
       groups: {
         Pages: "Pages",
         Actions: "Actions",
