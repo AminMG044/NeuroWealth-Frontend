@@ -383,14 +383,21 @@ export default function ImageCrop({
       {/* Actions */}
       <div className="flex justify-end gap-2">
         {onCancel && (
-          <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="md"
+            className="min-h-[44px] px-4"
+            onClick={onCancel}
+          >
             Cancel
           </Button>
         )}
         <Button
           type="button"
           variant="primary"
-          size="sm"
+          size="md"
+          className="min-h-[44px] px-5"
           onClick={handleConfirm}
           disabled={!ready}
         >
