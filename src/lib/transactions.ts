@@ -9,6 +9,7 @@ export type TransactionPreviewState =
   | "failure";
 export type ValidationTone = "error" | "success" | "warning";
 
+import { logger } from "./logger";
 import { random } from "./seeded-rng";
 
 // Error recovery types
@@ -248,8 +249,9 @@ export function parseTransactionKind(value: string | null): TransactionKind {
   
   // Warn on unrecognized values to help catch typos like "withdraw" vs "withdrawal"
   if (value !== null && value !== "") {
-    console.warn(
-      `[parseTransactionKind] Unrecognized kind value "${value}". Expected "deposit" or "withdrawal". Defaulting to "deposit".`
+    logger.warn(
+      'Unrecognized transaction kind value. Expected "deposit" or "withdrawal". Defaulting to "deposit".',
+      { kind: value },
     );
   }
   

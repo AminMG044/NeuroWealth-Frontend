@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { subscribeToLogs, type LogEntry } from "@/lib/logger";
 import {
   mapErrorCodeToErrorMode,
   getTransactionRecoveryUI,
   parseAmount,
+  parseTransactionKind,
   type ErrorMode,
   type TransactionRecoveryUI,
 } from "@/lib/transactions";
@@ -231,3 +233,44 @@ test("parseAmount rejects other non-numeric or malformed input", () => {
   assert.ok(Number.isNaN(parseAmount("Infinity")));
   assert.ok(Number.isNaN(parseAmount("NaN")));
 });
+
+// ── parseTransactionKind ───────────────────────────────────────────────────
+
+test("parseTransactionKind parses deposit and withdrawal", () => {
+  assert.equal(parseTransactionKind("deposit"), "deposit");
+  assert.equal(parseTransactionKind("withdrawal"), "withdrawal");
+});
+
+test("parseTransactionKind defaults null, empty, and invalid values to deposit with logger warning", () => {
+  let loggedWarning: LogEntry | null = null;
+  const unsubscribe = subscribeToLogs((entry) => {
+    if (entry.level === "warn") {
+      loggedWarning = entry;
+    }
+  });
+
+  try {
+    assert.equal(parseTransactionKind(null), "deposit");
+    assert.equal(loggedWarning, null);
+
+    assert.equal(parseTransactionKind(""), "deposit");
+    assert.equal(loggedWarning, null);
+
+    assert.equal(parseTransactionKind("invalid-kind"), "deposit");
+    assert.ok(loggedWarning !== null);
+    assert.equal(
+      (loggedWarning as LogEntry).message,
+      'Unrecognized transaction kind value. Expected "deposit" or "withdrawal". Defaulting to "deposit".',
+    );
+    assert.deepEqual((loggedWarning as LogEntry).context, { kind: "invalid-kind" });
+
+    // Verify PII scrubbing on context when sensitive pattern or key is present
+    loggedWarning = null;
+    parseTransactionKind("attacker@example.com");
+    assert.ok(loggedWarning !== null);
+    assert.deepEqual((loggedWarning as LogEntry).context, { kind: "***REDACTED***" });
+  } finally {
+    unsubscribe();
+  }
+});
+
