@@ -1,4 +1,5 @@
 import { JSDOM } from "jsdom";
+process.env.TZ = "UTC";
 
 if (typeof require !== "undefined" && require.extensions) {
   const cssProxy: Record<string, unknown> = new Proxy({}, {
