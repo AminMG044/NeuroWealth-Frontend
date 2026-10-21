@@ -1,0 +1,88 @@
+{
+  "name": "Validate translated realtime controls",
+  "on": {
+    "push": {
+      "branches": [
+        "validate/1132-realtime-labels"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "checks": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 25,
+      "env": {
+        "NEXT_PUBLIC_WEBHOOK_URL": "http://localhost:2000",
+        "NEXT_PUBLIC_API_URL": "http://localhost:3001",
+        "NEXT_PUBLIC_E2E_TESTING": "true",
+        "NEXT_TELEMETRY_DISABLED": "1"
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "actions/setup-node@v4",
+          "with": {
+            "node-version": "20"
+          }
+        },
+        {
+          "name": "Install reviewed dependencies without lifecycle scripts",
+          "run": "corepack enable\nyarn install --ignore-scripts --non-interactive"
+        },
+        {
+          "name": "Validate JSON configuration",
+          "run": "yarn validate:config"
+        },
+        {
+          "name": "Typecheck",
+          "if": "always()",
+          "run": "yarn typecheck"
+        },
+        {
+          "name": "Full unit suite",
+          "if": "always()",
+          "run": "yarn test"
+        },
+        {
+          "name": "Lint",
+          "if": "always()",
+          "run": "yarn lint"
+        },
+        {
+          "name": "Production build",
+          "if": "always()",
+          "run": "yarn build"
+        },
+        {
+          "name": "Install Chromium",
+          "if": "always()",
+          "run": "yarn playwright install --with-deps chromium"
+        },
+        {
+          "name": "English and French realtime controls",
+          "if": "always()",
+          "run": "yarn playwright test e2e/realtime-dashboard-i18n.spec.ts --workers=1"
+        },
+        {
+          "name": "Full existing browser suite",
+          "if": "always()",
+          "run": "yarn test:e2e"
+        },
+        {
+          "name": "Review artifacts",
+          "if": "always()",
+          "uses": "actions/upload-artifact@v4",
+          "with": {
+            "name": "realtime-1132-review",
+            "path": "test-results/\nplaywright-report/"
+          }
+        }
+      ]
+    }
+  }
+}
