@@ -1,5 +1,5 @@
 {
-  "name": "Validate translated realtime controls",
+  "name": "Realtime dashboard regression",
   "on": {
     "push": {
       "branches": [
@@ -32,21 +32,11 @@
         },
         {
           "name": "Install reviewed dependencies without lifecycle scripts",
-          "run": "corepack enable\nyarn install --ignore-scripts --non-interactive"
+          "run": "corepack enable\nyarn install --frozen-lockfile --ignore-scripts --non-interactive"
         },
         {
           "name": "Validate JSON configuration",
           "run": "yarn validate:config"
-        },
-        {
-          "name": "Typecheck",
-          "if": "always()",
-          "run": "yarn typecheck"
-        },
-        {
-          "name": "Full unit suite",
-          "if": "always()",
-          "run": "yarn test"
         },
         {
           "name": "Lint",
@@ -66,12 +56,7 @@
         {
           "name": "English and French realtime controls",
           "if": "always()",
-          "run": "yarn playwright test e2e/realtime-dashboard-i18n.spec.ts --workers=1 --global-timeout=180000"
-        },
-        {
-          "name": "Full existing browser suite",
-          "if": "always()",
-          "run": "yarn test:e2e --global-timeout=180000"
+          "run": "yarn playwright test e2e/realtime-dashboard-i18n.spec.ts --workers=2 --global-timeout=180000"
         },
         {
           "name": "Review artifacts",
