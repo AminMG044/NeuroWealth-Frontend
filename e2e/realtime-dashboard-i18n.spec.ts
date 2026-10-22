@@ -5,9 +5,10 @@ import { dictionaries } from "../src/lib/i18n/messages";
 // Exercise the actual dashboard, providers and stream hook rather than copied markup.
 for (const locale of ["en", "fr"] as const) for (const width of [1280, 375]) {
   test(`realtime controls use ${locale} labels at ${width}px and retain start/stop/reset behavior`, async ({ page }, testInfo) => {
-    await page.addInitScript(key => {
-      window.localStorage.setItem(key, JSON.stringify({ completed: true, lastStep: 2, timestamp: Date.now() }));
-    }, STORAGE_KEYS.ONBOARDING_STATE);
+    await page.addInitScript(({ onboardingKey, localeKey, locale }) => {
+      window.localStorage.setItem(onboardingKey, JSON.stringify({ completed: true, lastStep: 2, timestamp: Date.now() }));
+      window.localStorage.setItem(localeKey, locale);
+    }, { onboardingKey: STORAGE_KEYS.ONBOARDING_STATE, localeKey: STORAGE_KEYS.LOCALE, locale });
     await page.goto("/login");
     // The existing shortcut uses a different password from the mock adapter.
     await page.getByLabel("Email address", { exact: true }).fill("demo@neurowealth.app");
@@ -15,8 +16,6 @@ for (const locale of ["en", "fr"] as const) for (const width of [1280, 375]) {
     await page.locator('[data-qa="login-submit-button"]').click();
     await page.waitForURL("**/dashboard");
 
-    // Choose through the existing locale control while the dashboard stays mounted.
-    await page.getByRole("combobox", { name: dictionaries.en.locale.switcherLabel }).selectOption(locale);
     await page.setViewportSize({ width, height: 900 });
     const t = dictionaries[locale].dashboard.realtime;
     const region = page.getByRole("region", { name: t.simulatedStream, exact: true });
