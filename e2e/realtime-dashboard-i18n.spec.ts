@@ -9,7 +9,9 @@ for (const locale of ["en", "fr"] as const) for (const width of [1280, 375]) {
       window.localStorage.setItem(key, JSON.stringify({ completed: true, lastStep: 2, timestamp: Date.now() }));
     }, STORAGE_KEYS.ONBOARDING_STATE);
     await page.goto("/login");
-    await page.getByRole("button", { name: /fill demo credentials/i }).click();
+    // The existing shortcut uses a different password from the mock adapter.
+    await page.getByLabel("Email address", { exact: true }).fill("demo@neurowealth.app");
+    await page.getByLabel("Password", { exact: true }).fill("demo123");
     await page.locator('[data-qa="login-submit-button"]').click();
     await page.waitForURL("**/dashboard");
 
