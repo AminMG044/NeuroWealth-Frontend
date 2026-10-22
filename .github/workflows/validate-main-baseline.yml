@@ -1,0 +1,43 @@
+{
+  "name": "Verify unchanged main test failures",
+  "on": {
+    "push": {
+      "branches": [
+        "validate/1132-main-baseline"
+      ]
+    }
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "jobs": {
+    "baseline": {
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "actions/setup-node@v4",
+          "with": {
+            "node-version": "22"
+          }
+        },
+        {
+          "name": "Install exact reviewed dependency resolution",
+          "run": "corepack enable\nyarn install --frozen-lockfile --ignore-scripts --non-interactive"
+        },
+        {
+          "name": "Typecheck unchanged main",
+          "run": "yarn typecheck"
+        },
+        {
+          "name": "Unit tests unchanged main",
+          "if": "always()",
+          "run": "yarn test"
+        }
+      ]
+    }
+  }
+}
