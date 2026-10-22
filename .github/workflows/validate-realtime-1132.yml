@@ -13,7 +13,7 @@
   "jobs": {
     "checks": {
       "runs-on": "ubuntu-24.04",
-      "timeout-minutes": 25,
+      "timeout-minutes": 15,
       "env": {
         "NEXT_PUBLIC_WEBHOOK_URL": "http://localhost:2000",
         "NEXT_PUBLIC_API_URL": "http://localhost:3001",
@@ -27,7 +27,7 @@
         {
           "uses": "actions/setup-node@v4",
           "with": {
-            "node-version": "20"
+            "node-version": "22"
           }
         },
         {
@@ -66,12 +66,12 @@
         {
           "name": "English and French realtime controls",
           "if": "always()",
-          "run": "yarn playwright test e2e/realtime-dashboard-i18n.spec.ts --workers=1"
+          "run": "yarn playwright test e2e/realtime-dashboard-i18n.spec.ts --workers=1 --global-timeout=180000"
         },
         {
           "name": "Full existing browser suite",
           "if": "always()",
-          "run": "yarn test:e2e"
+          "run": "yarn test:e2e --global-timeout=180000"
         },
         {
           "name": "Review artifacts",
@@ -80,6 +80,15 @@
           "with": {
             "name": "realtime-1132-review",
             "path": "test-results/\nplaywright-report/"
+          }
+        },
+        {
+          "name": "Record dependency resolution",
+          "if": "always()",
+          "uses": "actions/upload-artifact@v4",
+          "with": {
+            "name": "dependency-resolution",
+            "path": "yarn.lock"
           }
         }
       ]
