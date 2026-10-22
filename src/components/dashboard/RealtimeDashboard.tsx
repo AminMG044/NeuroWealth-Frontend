@@ -183,7 +183,7 @@ export function RealtimeDashboard() {
           </div>
 
           {/* Right: controls */}
-          <div className="flex items-center gap-2" role="group" aria-label={t.controlsLabel}>
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t.controlsLabel}>
             <button
               type="button"
               onClick={start}
