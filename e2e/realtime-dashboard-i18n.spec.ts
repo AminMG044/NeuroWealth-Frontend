@@ -3,18 +3,21 @@ import { STORAGE_KEYS } from "../src/lib/storage-keys";
 import { dictionaries } from "../src/lib/i18n/messages";
 
 // Exercise the actual dashboard, providers and stream hook rather than copied markup.
-for (const locale of ["en", "fr"] as const) {
-  test(`realtime controls use ${locale} labels and retain start/stop/reset behavior`, async ({ page }, testInfo) => {
+for (const locale of ["en", "fr"] as const) for (const width of [1280, 375]) {
+  test(`realtime controls use ${locale} labels at ${width}px and retain start/stop/reset behavior`, async ({ page }, testInfo) => {
     await page.addInitScript(key => {
       window.localStorage.setItem(key, JSON.stringify({ completed: true, lastStep: 2, timestamp: Date.now() }));
     }, STORAGE_KEYS.ONBOARDING_STATE);
     await page.goto("/login");
-    await page.getByRole("button", { name: /fill demo credentials/i }).click();
+    // The existing shortcut uses a different password from the mock adapter.
+    await page.getByLabel("Email address", { exact: true }).fill("demo@neurowealth.app");
+    await page.getByLabel("Password", { exact: true }).fill("demo123");
     await page.locator('[data-qa="login-submit-button"]').click();
     await page.waitForURL("**/dashboard");
 
     // Choose through the existing locale control while the dashboard stays mounted.
     await page.getByRole("combobox", { name: dictionaries.en.locale.switcherLabel }).selectOption(locale);
+    await page.setViewportSize({ width, height: 900 });
     const t = dictionaries[locale].dashboard.realtime;
     const region = page.getByRole("region", { name: t.simulatedStream, exact: true });
     const controls = region.getByRole("group", { name: t.controlsLabel, exact: true });
@@ -29,6 +32,14 @@ for (const locale of ["en", "fr"] as const) {
     await expect(region.locator('[aria-label*="{t."]')).toHaveCount(0);
     await expect(region.getByLabel(t.streamStatusLabel.replace("{{status}}", t.status.idle), { exact: true })).toBeVisible();
 
+    await expect(region).toBeVisible();
+    expect(await region.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    for (const button of [start, stop, reset]) {
+      const box = await button.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+    }
     await page.clock.install();
     await start.focus();
     await page.keyboard.press("Space");
@@ -46,6 +57,6 @@ for (const locale of ["en", "fr"] as const) {
     await reset.click();
     await expect(region.getByText(t.noEvents, { exact: true })).toBeVisible();
     await expect(region.getByLabel(t.streamStatusLabel.replace("{{status}}", t.status.idle), { exact: true })).toBeVisible();
-    await testInfo.attach(`realtime-controls-${locale}`, { body: await region.screenshot(), contentType: "image/png" });
+    await testInfo.attach(`realtime-controls-${locale}-${width}`, { body: await region.screenshot(), contentType: "image/png" });
   });
 }
